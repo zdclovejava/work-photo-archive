@@ -1,0 +1,83 @@
+<wxml>
+  <!-- 棰勮缂栬緫椤?-->
+  <view class="page">
+
+    <!-- 鐓х墖棰勮鍖哄煙锛堟繁鑹茶儗鏅級 -->
+    <view class="preview-area">
+      <image class="preview-image" src="{{tempPath}}" mode="aspectFit" bindtap="onImagePreview"/>
+
+      <!-- 姘村嵃鍙犲姞棰勮 -->
+      <view class="watermark-overlay" wx:if="{{showWatermarkOverlay}}">
+        <view class="wm-line" wx:if="{{watermark.time}}">{{watermark.timeText}}</view>
+        <view class="wm-line" wx:if="{{watermark.location}}">{{watermark.locationText}}</view>
+        <view class="wm-tag" wx:if="{{watermark.showCategory && categoryName}}"
+              style="background:{{categoryColor}};">
+          {{categoryName}}
+        </view>
+        <view class="wm-line" wx:if="{{watermark.customText}}">{{watermark.customText}}</view>
+      </view>
+    </view>
+
+    <!-- 缂栬緫闈㈡澘锛堝簳閮ㄦ娊灞夛級 -->
+    <view class="edit-panel">
+
+      <!-- 鎶藉眽鎶婃墜 -->
+      <view class="panel-handle"></view>
+
+      <!-- 鍒嗙被閫夋嫨 -->
+      <view class="panel-section">
+        <text class="section-label">鍒嗙被</text>
+        <scroll-view class="category-scroll" scroll-x="true" enhanced="true" show-scrollbar="{{false}}">
+          <view wx:for="{{categories}}" wx:key="id"
+                class="cat-pill {{categoryId === item.id ? 'cat-active' : 'cat-inactive'}}"
+                bindtap="onCategorySelect" data-id="{{item.id}}"
+                style="{{categoryId === item.id ? 'background:' + item.color + ';color:#fff;' : ''}}">
+            {{item.name}}
+          </view>
+        </scroll-view>
+      </view>
+
+      <!-- 姘村嵃寮€鍏?-->
+      <view class="panel-section">
+        <text class="section-label">姘村嵃</text>
+        <view class="watermark-switches">
+          <view class="wm-switch-item">
+            <text class="wm-switch-label">鏃堕棿姘村嵃</text>
+            <switch checked="{{watermark.time}}" bindchange="onTimeWatermarkChange"
+                    color="#07C160"/>
+          </view>
+          <view class="wm-switch-item">
+            <text class="wm-switch-label">鍦扮偣姘村嵃</text>
+            <switch checked="{{watermark.location}}" bindchange="onLocationWatermarkChange"
+                    color="#07C160"/>
+          </view>
+        </view>
+      </view>
+
+      <!-- 鑷畾涔夋枃瀛?-->
+      <view class="panel-section">
+        <text class="section-label">鏂囧瓧</text>
+        <input class="text-field" placeholder="杈撳叆鑷畾涔夋按鍗版枃瀛?.."
+               value="{{watermark.customText}}" bindinput="onCustomTextInput"/>
+      </view>
+
+      <!-- 澶囨敞 -->
+      <view class="panel-section">
+        <text class="section-label">澶囨敞</text>
+        <input class="text-field" placeholder="鍙€夛紝娣诲姞澶囧繕淇℃伅"
+               value="{{note}}" bindinput="onNoteInput"/>
+      </view>
+
+      <!-- 淇濆瓨鎸夐挳 -->
+      <view class="save-btn" bindtap="onSave">
+        <text class="save-btn-text">淇濆瓨鍒扮浉鍐?/text>
+      </view>
+
+      <!-- 閲嶆媿鎸夐挳 -->
+      <view class="retake-btn" bindtap="onRetake">
+        <text class="retake-text">閲嶆媿</text>
+      </view>
+
+    </view>
+  </view>
+</wxml>
