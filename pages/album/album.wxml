@@ -1,0 +1,88 @@
+<wxml>
+  <!-- 鐓х墖搴撻〉 -->
+  <view class="page">
+
+    <!-- 瀵艰埅鏍忥紙鑷畾涔夊彸渚ф寜閽級 -->
+    <view class="nav-bar">
+      <text class="nav-title">鐓х墖搴?/text>
+      <text class="nav-action" bindtap="onSearchTap">鎼滅储</text>
+    </view>
+
+    <!-- 鍒嗙被绛涢€塗ab -->
+    <scroll-view class="filter-bar" scroll-x="true" enhanced="true" show-scrollbar="{{false}}">
+      <view class="filter-pill {{activeFilter === 'all' ? 'filter-active' : 'filter-inactive'}}"
+            bindtap="onFilterTap" data-id="all">鍏ㄩ儴</view>
+      <view wx:for="{{categories}}" wx:key="id"
+            class="filter-pill {{activeFilter === item.id ? 'filter-active' : 'filter-inactive'}}"
+            bindtap="onFilterTap" data-id="{{item.id}}">
+        {{item.name}}
+      </view>
+    </scroll-view>
+
+    <!-- 鐓х墖缃戞牸 -->
+    <scroll-view class="photo-grid-scroll" scroll-y="true" enhanced="true"
+                 scroll-into-view="{{scrollIntoView}}"
+                 scroll-with-animation="true"
+                 bindscroll="onScroll">
+
+      <!-- 绌虹姸鎬?-->
+      <view class="empty-state" wx:if="{{photoGroups.length === 0}}">
+        <text class="empty-icon">馃摲</text>
+        <text class="empty-text">杩樻病鏈夌収鐗?/text>
+        <text class="empty-hint">鐐瑰嚮搴曢儴鎷嶇収鎸夐挳寮€濮嬪瓨妗?/text>
+      </view>
+
+      <!-- 鍒嗙粍鍒楄〃 -->
+      <view wx:for="{{photoGroups}}" wx:key="date" class="photo-group">
+        <!-- 鏃ユ湡鏍囬 -->
+        <view class="group-header" id="{{item.groupId}}">
+          <text class="group-date">{{item.date}}</text>
+          <text class="group-count">{{item.photos.length}}寮?/text>
+        </view>
+
+        <!-- 3鍒楃綉鏍?-->
+        <view class="photo-grid">
+          <view wx:for="{{item.photos}}" wx:for-item="photo" wx:key="id"
+                class="photo-card" bindtap="onPhotoTap" data-id="{{photo.id}}">
+            <image class="photo-thumb"
+                   src="{{photo.thumbnailPath || '/images/thumb-placeholder.png'}}"
+                   mode="aspectFill" lazy-load="true"
+                   binderror="onThumbError"/>
+            <!-- 鍒嗙被鏍囩 -->
+            <view class="photo-tag" wx:if="{{photo.watermark.showCategory}}"
+                  style="background:{{photo.categoryColor || '#07C160'}};">
+              {{photo.categoryName}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+    </scroll-view>
+
+    <!-- 鍙充晶鏃ユ湡绱㈠紩鏉?-->
+    <view class="date-index-bar" wx:if="{{indexList.length > 1}}"
+          catchtouchstart="onIndexTouchStart"
+          catchtouchmove="onIndexTouchMove"
+          catchtouchend="onIndexTouchEnd">
+      <view wx:for="{{indexList}}" wx:key="date"
+            class="index-item {{activeIndexDate === item.date ? 'index-active' : ''}}"
+            data-date="{{item.date}}"
+            catchtap="onIndexTap">
+        {{item.label}}
+      </view>
+    </view>
+
+    <!-- 鏃ユ湡姘旀场鎻愮ず -->
+    <view class="date-bubble" wx:if="{{showBubble}}">
+      <text class="bubble-text">{{bubbleDate}}</text>
+    </view>
+
+    <!-- FAB 鎷嶇収鎸夐挳 -->
+    <view class="fab-btn" bindtap="onFabTap">
+      <view class="fab-icon">
+        <view class="fab-circle-inner"></view>
+      </view>
+    </view>
+
+  </view>
+</wxml>
