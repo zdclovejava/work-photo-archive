@@ -1,0 +1,92 @@
+page {
+  background-color: #EDEDED;
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  color: #333;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* 閫氱敤宸ュ叿绫?*/
+.flex-row { display: flex; flex-direction: row; align-items: center; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+/* 鍗＄墖 */
+.card {
+  background: #fff;
+  border-radius: 24rpx;
+  margin: 0 24rpx;
+  padding: 24rpx 32rpx;
+}
+
+/* 鍒嗗壊绾?*/
+.divider {
+  height: 1rpx;
+  background: #F0F0F0;
+  margin: 0 32rpx;
+}
+
+/* 涓昏壊鎸夐挳 */
+.btn-primary {
+  background: #07C160;
+  color: #fff;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  padding: 20rpx 0;
+}
+
+.btn-primary:active {
+  opacity: 0.85;
+}
+
+/* 娆℃寜閽?*/
+.btn-secondary {
+  background: #F7F7F7;
+  color: #333;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+  padding: 16rpx 0;
+  border: 1rpx solid #ddd;
+}
+
+/* 鍗遍櫓鎸夐挳 */
+.btn-danger {
+  background: #F7F7F7;
+  color: #FF4D4F;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+  padding: 16rpx 0;
+  border: 1rpx solid #FF4D4F;
+}
+
+/* 寮€鍏冲紑鐘舵€?*/
+.switch-on {
+  background: #07C160;
+  border-radius: 20rpx;
+  position: relative;
+  transition: all 0.2s;
+}
+
+/* 鍒嗙被鑳跺泭 */
+.category-pill {
+  border-radius: 100rpx;
+  padding: 8rpx 24rpx;
+  font-size: 26rpx;
+  display: inline-block;
+}
+
+.category-pill.active {
+  background: #07C160;
+  color: #fff;
+}
+
+.category-pill.inactive {
+  background: #fff;
+  color: #333;
+  border: 1rpx solid #ddd;
+}
