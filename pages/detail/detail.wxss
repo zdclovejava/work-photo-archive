@@ -1,0 +1,172 @@
+page {
+  background: #1A1A1A;
+  height: 100%;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #1A1A1A;
+}
+
+/* 鐓х墖鍖哄煙 */
+.photo-area {
+  flex: 1;
+  position: relative;
+  background: #1A1A1A;
+}
+
+.photo-swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.photo-full {
+  width: 100%;
+  height: 100%;
+}
+
+/* 缈婚〉绠ご */
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  font-size: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow-left { left: 16rpx; }
+.arrow-right { right: 16rpx; }
+
+/* 淇℃伅闈㈡澘 */
+.info-panel {
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 16rpx 32rpx 48rpx;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.panel-handle {
+  width: 60rpx;
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: #ddd;
+  margin: 0 auto 20rpx;
+}
+
+/* 淇℃伅琛?*/
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+  gap: 16rpx;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #999;
+  width: 80rpx;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+}
+
+.info-tag {
+  padding: 4rpx 16rpx;
+  border-radius: 100rpx;
+  color: #fff;
+  font-size: 24rpx;
+}
+
+.wm-preview {
+  background: #F7F7F7;
+  border-radius: 12rpx;
+  padding: 8rpx 16rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.note-text {
+  color: #333;
+}
+
+.note-empty {
+  color: #ccc;
+}
+
+.divider {
+  height: 1rpx;
+  background: #F0F0F0;
+  margin: 12rpx 0;
+}
+
+/* 鐘舵€?*/
+.status-ok {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #07C160;
+}
+
+.status-text {
+  font-size: 26rpx;
+  color: #07C160;
+}
+
+.status-fail {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 鎿嶄綔鎸夐挳 */
+.action-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 16rpx 0;
+  border-radius: 16rpx;
+  text-align: center;
+  border: 1rpx solid #ddd;
+  background: #F7F7F7;
+}
+
+.action-btn-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.action-save {
+  border-color: #07C160;
+  background: #fff;
+}
+
+.action-save .action-btn-text {
+  color: #07C160;
+}
+
+.action-delete {
+  border-color: #FF4D4F;
+}
