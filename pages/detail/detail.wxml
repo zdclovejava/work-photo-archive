@@ -1,0 +1,83 @@
+<wxml>
+  <!-- 鐓х墖璇︽儏椤?-->
+  <view class="page">
+
+    <!-- 鐓х墖灞曠ず鍖哄煙 -->
+    <view class="photo-area">
+      <swiper class="photo-swiper" current="{{currentIndex}}" bindchange="onSwiperChange">
+        <swiper-item wx:for="{{photos}}" wx:key="id">
+          <image class="photo-full" src="{{item.thumbnailPath || ''}}" mode="aspectFit"
+                 bindtap="onPhotoPreview" data-src="{{item.thumbnailPath}}"/>
+        </swiper-item>
+      </swiper>
+
+      <!-- 宸﹀彸缈婚〉绠ご -->
+      <view class="nav-arrow arrow-left" bindtap="onPrev" wx:if="{{currentIndex > 0}}">鈥?/view>
+      <view class="nav-arrow arrow-right" bindtap="onNext" wx:if="{{currentIndex < photos.length - 1}}">鈥?/view>
+    </view>
+
+    <!-- 搴曢儴淇℃伅闈㈡澘 -->
+    <view class="info-panel">
+      <view class="panel-handle"></view>
+
+      <!-- 鍒嗙被 -->
+      <view class="info-row">
+        <text class="info-label">鍒嗙被</text>
+        <view class="info-tag" style="background:{{currentPhoto.categoryColor || '#07C160'}};">
+          {{currentPhoto.categoryName}}
+        </view>
+      </view>
+
+      <!-- 鏃堕棿 -->
+      <view class="info-row">
+        <text class="info-label">鏃堕棿</text>
+        <text class="info-value">{{currentPhoto.watermark.time || '鏃?}}</text>
+      </view>
+
+      <!-- 鍦扮偣 -->
+      <view class="info-row">
+        <text class="info-label">鍦扮偣</text>
+        <text class="info-value">{{currentPhoto.watermark.location || '鏃?}}</text>
+      </view>
+
+      <!-- 姘村嵃鍐呭 -->
+      <view class="info-row">
+        <text class="info-label">姘村嵃</text>
+        <text class="info-value wm-preview">{{watermarkPreview}}</text>
+      </view>
+
+      <!-- 鐩稿唽鐘舵€?-->
+      <view class="info-row">
+        <text class="info-label">鐘舵€?/text>
+        <view class="status-ok" wx:if="{{currentPhoto.savedToAlbum}}">
+          <view class="status-dot"></view>
+          <text class="status-text">宸蹭繚瀛樺埌绯荤粺鐩稿唽</text>
+        </view>
+        <text class="status-fail" wx:else>鏈繚瀛樺埌鐩稿唽</text>
+      </view>
+
+      <!-- 澶囨敞 -->
+      <view class="info-row">
+        <text class="info-label">澶囨敞</text>
+        <text class="info-value note-text" wx:if="{{currentPhoto.note}}">{{currentPhoto.note}}</text>
+        <text class="info-value note-empty" wx:else>鏆傛棤澶囨敞</text>
+      </view>
+
+      <view class="divider"></view>
+
+      <!-- 鎿嶄綔鎸夐挳 -->
+      <view class="action-row">
+        <view class="action-btn action-save" bindtap="onSaveToAlbum">
+          <text class="action-btn-text">閲嶆柊淇濆瓨鍒扮浉鍐?/text>
+        </view>
+        <view class="action-btn action-edit" bindtap="onEditNote">
+          <text class="action-btn-text">淇敼澶囨敞</text>
+        </view>
+        <view class="action-btn action-delete" bindtap="onDelete">
+          <text class="action-btn-text" style="color:#FF4D4F;">鍒犻櫎</text>
+        </view>
+      </view>
+
+    </view>
+  </view>
+</wxml>
