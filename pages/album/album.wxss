@@ -1,0 +1,238 @@
+page {
+  background: #EDEDED;
+  height: 100%;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #EDEDED;
+}
+
+/* 瀵艰埅鏍?*/
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 32rpx;
+  background: #EDEDED;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #1A1A1A;
+}
+
+.nav-action {
+  font-size: 28rpx;
+  color: #07C160;
+}
+
+/* 鍒嗙被绛涢€塗ab */
+.filter-bar {
+  white-space: nowrap;
+  padding: 8rpx 24rpx 16rpx;
+  background: #EDEDED;
+}
+
+.filter-pill {
+  display: inline-block;
+  padding: 8rpx 24rpx;
+  margin-right: 16rpx;
+  border-radius: 100rpx;
+  font-size: 26rpx;
+}
+
+.filter-active {
+  background: #07C160;
+  color: #fff;
+}
+
+.filter-inactive {
+  background: #fff;
+  color: #666;
+  border: 1rpx solid #ddd;
+}
+
+/* 鐓х墖缃戞牸鍖哄煙 */
+.photo-grid-scroll {
+  flex: 1;
+  padding: 0 24rpx;
+}
+
+/* 绌虹姸鎬?*/
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 鏃ユ湡鍒嗙粍 */
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.group-date {
+  font-size: 26rpx;
+  color: #999;
+  font-weight: 500;
+}
+
+.group-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 3鍒楃綉鏍?*/
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  padding-bottom: 16rpx;
+}
+
+.photo-card {
+  width: calc((100% - 24rpx) / 3);
+  aspect-ratio: 3/4;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #D9EAD3;
+  position: relative;
+}
+
+.photo-thumb {
+  width: 100%;
+  height: 100%;
+}
+
+.photo-tag {
+  position: absolute;
+  top: 8rpx;
+  left: 8rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  color: #fff;
+  font-size: 18rpx;
+}
+
+/* FAB 鎸夐挳 */
+.fab-btn {
+  position: fixed;
+  right: 48rpx;
+  bottom: 200rpx;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #07C160;
+  box-shadow: 0 4rpx 16rpx rgba(7,193,96,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+  position: relative;
+}
+
+.fab-circle-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #fff;
+}
+
+/* ==================== 鏃ユ湡绱㈠紩鏉?==================== */
+
+.date-index-bar {
+  position: fixed;
+  right: 8rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 6rpx;
+  border-radius: 20rpx;
+  background: rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.index-item {
+  padding: 4rpx 8rpx;
+  font-size: 20rpx;
+  color: #666;
+  line-height: 1.5;
+  text-align: center;
+  border-radius: 8rpx;
+  transition: all 0.15s;
+}
+
+.index-item.index-active {
+  color: #07C160;
+  font-weight: 600;
+  background: rgba(7, 193, 96, 0.12);
+}
+
+/* ==================== 鏃ユ湡姘旀场 ==================== */
+
+.date-bubble {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 20rpx;
+  padding: 20rpx 48rpx;
+  z-index: 200;
+  pointer-events: none;
+  animation: bubbleIn 0.15s ease-out;
+}
+
+.bubble-text {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
