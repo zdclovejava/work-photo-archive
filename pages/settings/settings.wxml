@@ -1,0 +1,100 @@
+<wxml>
+  <!-- 璁剧疆椤?-->
+  <view class="page">
+
+    <!-- 姘村嵃璁剧疆鍒嗙粍 -->
+    <view class="section-title">姘村嵃璁剧疆</view>
+    <view class="card">
+      <view class="cell">
+        <text class="cell-label">榛樿寮€鍚椂闂存按鍗?/text>
+        <switch checked="{{settings.defaultTimeWatermark}}"
+                bindchange="onTimeWatermarkChange" color="#07C160"/>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell">
+        <text class="cell-label">榛樿寮€鍚湴鐐规按鍗?/text>
+        <switch checked="{{settings.defaultLocationWatermark}}"
+                bindchange="onLocationWatermarkChange" color="#07C160"/>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell" bindtap="onPositionTap">
+        <text class="cell-label">姘村嵃浣嶇疆</text>
+        <text class="cell-value">{{positionText}}</text>
+        <text class="cell-arrow">鈥?/text>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell cell-vertical">
+        <view class="cell-row">
+          <text class="cell-label">姘村嵃閫忔槑搴?/text>
+          <text class="cell-value">{{settings.watermarkOpacity}}%</text>
+        </view>
+        <slider min="10" max="100" value="{{settings.watermarkOpacity}}"
+                activeColor="#07C160" block-size="20"
+                bindchange="onOpacityChange"/>
+      </view>
+    </view>
+
+    <!-- 鍒嗙被绠＄悊鍒嗙粍 -->
+    <view class="section-title">鍒嗙被绠＄悊</view>
+    <view class="card">
+      <!-- 鍒嗙被鏍囩灞曠ず -->
+      <view class="category-tags">
+        <view wx:for="{{settings.categories}}" wx:key="id"
+              class="cat-tag" style="background:{{item.color}}20; color:{{item.color}}; border:1rpx solid {{item.color}}40;">
+          {{item.name}}
+          <text class="cat-delete" catchtap="onDeleteCategory" data-id="{{item.id}}">脳</text>
+        </view>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell" bindtap="onAddCategory">
+        <text class="cell-label" style="color:#07C160;">+ 娣诲姞鑷畾涔夊垎绫?/text>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell" bindtap="onSortCategory">
+        <text class="cell-label">鍒嗙被鎺掑簭</text>
+        <text class="cell-value">鎷栨嫿鎺掑簭</text>
+        <text class="cell-arrow">鈥?/text>
+      </view>
+    </view>
+
+    <!-- 瀛樺偍绠＄悊鍒嗙粍 -->
+    <view class="section-title">瀛樺偍绠＄悊</view>
+    <view class="card">
+      <view class="cell">
+        <text class="cell-label">缂╃暐鍥剧┖闂?/text>
+        <text class="cell-value">{{thumbSizeText}}</text>
+      </view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width:{{thumbPercent}}%;"></view>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell">
+        <text class="cell-label">绯荤粺鐩稿唽鐓х墖鏁?/text>
+        <text class="cell-value" style="color:#07C160;">{{photoCount}} 寮?/text>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell" bindtap="onCleanThumbs">
+        <text class="cell-label">娓呯悊鏃х缉鐣ュ浘</text>
+        <text class="cell-value">30澶╁墠</text>
+        <text class="cell-arrow">鈥?/text>
+      </view>
+    </view>
+
+    <!-- 鍏充簬鍒嗙粍 -->
+    <view class="section-title">鍏充簬</view>
+    <view class="card">
+      <view class="cell">
+        <text class="cell-label">鐗堟湰</text>
+        <text class="cell-value">v1.0.0</text>
+      </view>
+      <view class="cell-divider"></view>
+      <view class="cell" bindtap="onFeedback">
+        <text class="cell-label" style="color:#07C160;">鎰忚鍙嶉</text>
+        <text class="cell-arrow">鈥?/text>
+      </view>
+    </view>
+
+    <!-- 搴曢儴鐣欑櫧 -->
+    <view style="height: 120rpx;"></view>
+  </view>
+</wxml>
