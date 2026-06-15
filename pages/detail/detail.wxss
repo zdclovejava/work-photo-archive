@@ -10,7 +10,7 @@ page {
   background: #1A1A1A;
 }
 
-/* 鐓х墖鍖哄煙 */
+/* 照片区域 */
 .photo-area {
   flex: 1;
   position: relative;
@@ -27,7 +27,7 @@ page {
   height: 100%;
 }
 
-/* 缈婚〉绠ご */
+/* 翻页箭头 */
 .nav-arrow {
   position: absolute;
   top: 50%;
@@ -46,7 +46,7 @@ page {
 .arrow-left { left: 16rpx; }
 .arrow-right { right: 16rpx; }
 
-/* 淇℃伅闈㈡澘 */
+/* 信息面板 */
 .info-panel {
   background: #fff;
   border-radius: 24rpx 24rpx 0 0;
@@ -63,7 +63,7 @@ page {
   margin: 0 auto 20rpx;
 }
 
-/* 淇℃伅琛?*/
+/* 信息行 */
 .info-row {
   display: flex;
   align-items: center;
@@ -113,7 +113,7 @@ page {
   margin: 12rpx 0;
 }
 
-/* 鐘舵€?*/
+/* 状态 */
 .status-ok {
   display: flex;
   align-items: center;
@@ -137,7 +137,7 @@ page {
   color: #999;
 }
 
-/* 鎿嶄綔鎸夐挳 */
+/* 操作按钮 */
 .action-row {
   display: flex;
   gap: 16rpx;
