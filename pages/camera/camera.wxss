@@ -10,7 +10,7 @@ page {
   background: #EDEDED;
 }
 
-/* 鍒嗙被閫夋嫨鏍?*/
+/* 分类选择栏 */
 .category-bar {
   white-space: nowrap;
   padding: 12rpx 24rpx;
@@ -35,7 +35,7 @@ page {
   border: 1rpx solid #ddd;
 }
 
-/* 鐩告満鍖哄煙 */
+/* 相机区域 */
 .camera-area {
   flex: 1;
   margin: 0 24rpx;
@@ -50,7 +50,7 @@ page {
   height: 100%;
 }
 
-/* 姘村嵃棰勮娴眰 */
+/* 水印预览浮层 */
 .watermark-preview {
   position: absolute;
   bottom: 24rpx;
@@ -76,7 +76,7 @@ page {
   margin-top: 4rpx;
 }
 
-/* 鍙栨櫙杈呭姪绾?*/
+/* 取景辅助线 */
 .guide-frame {
   position: absolute;
   top: 50%;
@@ -107,7 +107,7 @@ page {
   border-style: dashed;
 }
 
-/* 鏃犳潈闄愬崰浣?*/
+/* 无权限占位 */
 .camera-placeholder {
   width: 100%;
   height: 100%;
@@ -132,7 +132,7 @@ page {
   font-size: 28rpx;
 }
 
-/* 蹇嵎寮€鍏虫潯 */
+/* 快捷开关条 */
 .switch-bar {
   display: flex;
   padding: 16rpx 48rpx;
@@ -199,7 +199,7 @@ page {
   left: 2rpx;
 }
 
-/* 鑷畾涔夋枃瀛楄緭鍏?*/
+/* 自定义文字输入 */
 .custom-text-input {
   padding: 0 24rpx;
   margin-bottom: 16rpx;
@@ -212,7 +212,7 @@ page {
   font-size: 28rpx;
 }
 
-/* 搴曢儴鎿嶄綔鏍?*/
+/* 底部操作栏 */
 .bottom-bar {
   display: flex;
   align-items: center;
@@ -261,7 +261,7 @@ page {
   color: #999;
 }
 
-/* 鎷嶇収鎸夐挳 */
+/* 拍照按钮 */
 .shutter-btn {
   width: 120rpx;
   height: 120rpx;
@@ -285,7 +285,7 @@ page {
   background: #e0e0e0;
 }
 
-/* ==================== 闀滃ご鍊嶇巼鍒囨崲 ==================== */
+/* ==================== 镜头倍率切换 ==================== */
 
 .zoom-bar {
   position: absolute;
