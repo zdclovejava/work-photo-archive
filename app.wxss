@@ -6,13 +6,13 @@ page {
   line-height: 1.6;
 }
 
-/* 閫氱敤宸ュ叿绫?*/
+/* 通用工具类 */
 .flex-row { display: flex; flex-direction: row; align-items: center; }
 .flex-col { display: flex; flex-direction: column; }
 .flex-center { display: flex; justify-content: center; align-items: center; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 
-/* 鍗＄墖 */
+/* 卡片 */
 .card {
   background: #fff;
   border-radius: 24rpx;
@@ -20,14 +20,14 @@ page {
   padding: 24rpx 32rpx;
 }
 
-/* 鍒嗗壊绾?*/
+/* 分割线 */
 .divider {
   height: 1rpx;
   background: #F0F0F0;
   margin: 0 32rpx;
 }
 
-/* 涓昏壊鎸夐挳 */
+/* 主色按钮 */
 .btn-primary {
   background: #07C160;
   color: #fff;
@@ -42,7 +42,7 @@ page {
   opacity: 0.85;
 }
 
-/* 娆℃寜閽?*/
+/* 次按钮 */
 .btn-secondary {
   background: #F7F7F7;
   color: #333;
@@ -53,7 +53,7 @@ page {
   border: 1rpx solid #ddd;
 }
 
-/* 鍗遍櫓鎸夐挳 */
+/* 危险按钮 */
 .btn-danger {
   background: #F7F7F7;
   color: #FF4D4F;
@@ -64,7 +64,7 @@ page {
   border: 1rpx solid #FF4D4F;
 }
 
-/* 寮€鍏冲紑鐘舵€?*/
+/* 开关开状态 */
 .switch-on {
   background: #07C160;
   border-radius: 20rpx;
@@ -72,7 +72,7 @@ page {
   transition: all 0.2s;
 }
 
-/* 鍒嗙被鑳跺泭 */
+/* 分类胶囊 */
 .category-pill {
   border-radius: 100rpx;
   padding: 8rpx 24rpx;
