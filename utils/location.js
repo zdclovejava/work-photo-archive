@@ -1,11 +1,12 @@
 /**
- * 鍦扮悊浣嶇疆宸ュ叿
- * 鑾峰彇褰撳墠浣嶇疆锛屾敮鎸侀€嗗湴鍧€缂栫爜锛堥渶瑕佺綉缁滐級锛屾柇缃戞椂闄嶇骇鏄剧ずGPS鍧愭爣
+ * 地理位置工具
+ * 获取当前位置，支持逆地址编码（需要网络），断网时降级显示GPS坐标
  */
 
 /**
- * 妫€鏌ュ苟璇锋眰瀹氫綅鏉冮檺
- * @returns {Promise<boolean>} 鏄惁鏈夋潈闄? */
+ * 检查并请求定位权限
+ * @returns {Promise<boolean>} 是否有权限
+ */
 function requestLocationAuth() {
   return new Promise((resolve) => {
     wx.getSetting({
@@ -14,10 +15,11 @@ function requestLocationAuth() {
         if (auth === true) {
           resolve(true)
         } else if (auth === false) {
-          // 鐢ㄦ埛涔嬪墠鎷掔粷杩囷紝寮曞鍘昏缃?          wx.showModal({
-            title: '闇€瑕佸畾浣嶆潈闄?,
-            content: '璇峰湪璁剧疆涓紑鍚畾浣嶆潈闄愶紝鎵嶈兘娣诲姞鍦扮偣姘村嵃',
-            confirmText: '鍘昏缃?,
+          // 用户之前拒绝过，引导去设置
+          wx.showModal({
+            title: '需要定位权限',
+            content: '请在设置中开启定位权限，才能添加地点水印',
+            confirmText: '去设置',
             success(modalRes) {
               if (modalRes.confirm) {
                 wx.openSetting({
@@ -32,7 +34,7 @@ function requestLocationAuth() {
             }
           })
         } else {
-          // 棣栨璇锋眰
+          // 首次请求
           wx.authorize({
             scope: 'scope.userLocation',
             success() { resolve(true) },
@@ -46,20 +48,21 @@ function requestLocationAuth() {
 }
 
 /**
- * 鑾峰彇褰撳墠浣嶇疆
+ * 获取当前位置
  * @returns {Promise<{ address: string, latitude: number, longitude: number }>}
  */
 async function getLocation() {
-  // 鍏堟鏌ユ潈闄?  const hasAuth = await requestLocationAuth()
+  // 先检查权限
+  const hasAuth = await requestLocationAuth()
   if (!hasAuth) {
-    throw new Error('鏃犳硶鑾峰彇浣嶇疆锛岃妫€鏌ュ畾浣嶆潈闄?)
+    throw new Error('无法获取位置，请检查定位权限')
   }
 
   return new Promise((resolve, reject) => {
     wx.getLocation({
       type: 'gcj02',
       success(res) {
-        // 灏濊瘯閫嗗湴鍧€缂栫爜
+        // 尝试逆地址编码
         reverseGeocode(res.latitude, res.longitude)
           .then(address => {
             resolve({
@@ -70,7 +73,7 @@ async function getLocation() {
             })
           })
           .catch(() => {
-            // 閫嗗湴鍧€缂栫爜澶辫触锛岄檷绾ф樉绀虹粡绾害
+            // 逆地址编码失败，降级显示经纬度
             resolve({
               address: `${res.latitude.toFixed(4)}, ${res.longitude.toFixed(4)}`,
               latitude: res.latitude,
@@ -80,19 +83,22 @@ async function getLocation() {
           })
       },
       fail(err) {
-        console.error('瀹氫綅澶辫触', err)
-        reject(new Error('鏃犳硶鑾峰彇浣嶇疆锛岃妫€鏌ュ畾浣嶆潈闄?))
+        console.error('定位失败', err)
+        reject(new Error('无法获取位置，请检查定位权限'))
       }
     })
   })
 }
 
 /**
- * 鑵捐鍦板浘閫嗗湴鍧€缂栫爜
- * 褰撳墠浣跨敤绠€鍗曟柟妗堬細鐩存帴杩斿洖缁忕含搴? * 濡傞渶璇︾粏鍦板潃锛岃鎺ュ叆鑵捐浣嶇疆鏈嶅姟 API锛堥渶鐢宠 key锛? */
+ * 腾讯地图逆地址编码
+ * 当前使用简单方案：直接返回经纬度
+ * 如需详细地址，请接入腾讯位置服务 API（需申请 key）
+ */
 function reverseGeocode(latitude, longitude) {
   return new Promise((resolve) => {
-    // 绠€鍗曟柟妗堬細鐩存帴杩斿洖缁忕含搴︼紙绂荤嚎鍙敤锛?    // 濡傞渶璇︾粏鍦板潃锛屽彇娑堟敞閲婂苟濉叆浣犵殑鑵捐鍦板浘 key
+    // 简单方案：直接返回经纬度（离线可用）
+    // 如需详细地址，取消注释并填入你的腾讯地图 key
     /*
     wx.request({
       url: `https://apis.map.qq.com/ws/geocoder/v1/?location=${latitude},${longitude}&key=YOUR_KEY`,
@@ -114,9 +120,10 @@ function reverseGeocode(latitude, longitude) {
 }
 
 /**
- * 鏍煎紡鍖栧湴鍧€鏄剧ず锛堟埅鏂繃闀垮湴鍧€锛? */
+ * 格式化地址显示（截断过长地址）
+ */
 function formatAddress(address, maxLen = 20) {
-  if (!address) return '鏈紑鍚畾浣?
+  if (!address) return '未开启定位'
   if (address.length <= maxLen) return address
   return address.substring(0, maxLen) + '...'
 }
