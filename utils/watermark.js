@@ -1,16 +1,16 @@
 /**
- * 姘村嵃鍚堟垚宸ュ叿
- * 浣跨敤 WXML Canvas + wx.canvasToTempFilePath 鍚堟垚姘村嵃
- * 鏀寔闄嶇骇锛欳anvas 涓嶅彲鐢ㄦ椂鐩存帴杩斿洖鍘熷浘
+ * 水印合成工具
+ * 使用 WXML Canvas + wx.canvasToTempFilePath 合成水印
+ * 支持降级：Canvas 不可用时直接返回原图
  */
 
 const app = getApp()
 
 /**
- * 鍚堟垚甯︽按鍗扮殑鍥剧墖
- * @param {string} src - 鍘熷浘涓存椂璺緞
- * @param {object} options - 姘村嵃閫夐」
- * @returns {Promise<string>} 鍚堟垚鍚庣殑涓存椂鏂囦欢璺緞
+ * 合成带水印的图片
+ * @param {string} src - 原图临时路径
+ * @param {object} options - 水印选项
+ * @returns {Promise<string>} 合成后的临时文件路径
  */
 function applyWatermark(src, options = {}) {
   const {
@@ -23,12 +23,12 @@ function applyWatermark(src, options = {}) {
   } = options
 
   return new Promise((resolve) => {
-    // 鑾峰彇鍥剧墖淇℃伅
+    // 获取图片信息
     wx.getImageInfo({
       src,
       success(imgInfo) {
         const { width, height } = imgInfo
-        // 闄愬埗鏈€澶у昂瀵革紝閬垮厤Canvas鍐呭瓨婧㈠嚭
+        // 限制最大尺寸，避免Canvas内存溢出
         const MAX_SIZE = 4096
         let scale = 1
         if (width > MAX_SIZE || height > MAX_SIZE) {
@@ -37,23 +37,25 @@ function applyWatermark(src, options = {}) {
         const canvasW = Math.round(width * scale)
         const canvasH = Math.round(height * scale)
 
-        // 鍒涘缓绂诲睆 Canvas锛堝熀纭€搴?2.16.1+锛?        // 濡傛灉涓嶆敮鎸侊紝闄嶇骇杩斿洖鍘熷浘
+        // 创建离屏 Canvas（基础库 2.16.1+）
+        // 如果不支持，降级返回原图
         try {
           const canvas = wx.createOffscreenCanvas({ type: '2d', width: canvasW, height: canvasH })
           const ctx = canvas.getContext('2d')
 
-          // 鍒涘缓 Image 瀵硅薄
+          // 创建 Image 对象
           const img = canvas.createImage()
           img.onload = () => {
-            // 缁樺埗鍘熷浘
+            // 绘制原图
             ctx.drawImage(img, 0, 0, canvasW, canvasH)
 
-            // 缁樺埗姘村嵃
+            // 绘制水印
             drawWatermarkOnCanvas(ctx, canvasW, canvasH, {
               timeWatermark, locationText, categoryName, customText, position, opacity
             })
 
-            // 瀵煎嚭涓轰复鏃舵枃浠?            try {
+            // 导出为临时文件
+            try {
               wx.canvasToTempFilePath({
                 canvas,
                 x: 0, y: 0,
@@ -65,27 +67,27 @@ function applyWatermark(src, options = {}) {
                   resolve(res.tempFilePath)
                 },
                 fail(err) {
-                  console.error('瀵煎嚭姘村嵃鍥剧墖澶辫触', err)
-                  resolve(src) // 闄嶇骇杩斿洖鍘熷浘
+                  console.error('导出水印图片失败', err)
+                  resolve(src) // 降级返回原图
                 }
               })
             } catch (err) {
-              console.error('canvasToTempFilePath 寮傚父', err)
+              console.error('canvasToTempFilePath 异常', err)
               resolve(src)
             }
           }
           img.onerror = (err) => {
-            console.error('Canvas 鍔犺浇鍥剧墖澶辫触', err)
+            console.error('Canvas 加载图片失败', err)
             resolve(src)
           }
           img.src = src
         } catch (err) {
-          console.error('createOffscreenCanvas 涓嶆敮鎸侊紝闄嶇骇杩斿洖鍘熷浘', err)
+          console.error('createOffscreenCanvas 不支持，降级返回原图', err)
           resolve(src)
         }
       },
       fail(err) {
-        console.error('鑾峰彇鍥剧墖淇℃伅澶辫触', err)
+        console.error('获取图片信息失败', err)
         resolve(src)
       }
     })
@@ -93,14 +95,15 @@ function applyWatermark(src, options = {}) {
 }
 
 /**
- * 鍦?Canvas 涓婄粯鍒舵按鍗? */
+ * 在 Canvas 上绘制水印
+ */
 function drawWatermarkOnCanvas(ctx, width, height, options) {
   const { timeWatermark, locationText, categoryName, customText, position, opacity } = options
 
   const padding = Math.max(16, width * 0.02)
   const lineHeight = Math.max(22, height * 0.025)
 
-  // 浣嶇疆閰嶇疆
+  // 位置配置
   const posConfig = {
     leftBottom:  { align: 'left',  bottom: true  },
     rightBottom: { align: 'right', bottom: true  },
@@ -109,7 +112,8 @@ function drawWatermarkOnCanvas(ctx, width, height, options) {
   }
   const pos = posConfig[position] || posConfig.leftBottom
 
-  // 鏀堕泦姘村嵃琛?  const lines = []
+  // 收集水印行
+  const lines = []
 
   if (timeWatermark) {
     lines.push({
@@ -149,7 +153,7 @@ function drawWatermarkOnCanvas(ctx, width, height, options) {
 
   if (lines.length === 0) return
 
-  // 璁＄畻姘村嵃鍖哄煙澶у皬
+  // 计算水印区域大小
   let maxWidth = 0
   lines.forEach(line => {
     ctx.font = `${line.fontSize}px sans-serif`
@@ -160,19 +164,19 @@ function drawWatermarkOnCanvas(ctx, width, height, options) {
   const watermarkWidth = maxWidth + padding * 2
   const watermarkHeight = lines.length * lineHeight + padding
 
-  // 璁＄畻璧峰浣嶇疆
+  // 计算起始位置
   let bgX = pos.align === 'right' ? width - watermarkWidth - padding : padding
   let bgY = pos.bottom ? height - watermarkHeight - padding : padding
 
-  // 缁樺埗鍗婇€忔槑鑳屾櫙
+  // 绘制半透明背景
   ctx.fillStyle = `rgba(0,0,0,${(opacity / 100) * 0.5})`
   roundRect(ctx, bgX, bgY, watermarkWidth, watermarkHeight, 6)
   ctx.fill()
 
-  // 閫愯缁樺埗姘村嵃鏂囧瓧
+  // 逐行绘制水印文字
   let currentY = bgY + padding * 0.8 + lineHeight * 0.4
   lines.forEach(line => {
-    // 缁樺埗鍒嗙被鏍囩鑳屾櫙
+    // 绘制分类标签背景
     if (line.bgColor) {
       ctx.font = `500 ${line.fontSize}px sans-serif`
       const tagWidth = (ctx.measureText ? ctx.measureText(line.text).width : line.text.length * line.fontSize * 0.6) + 12
@@ -191,7 +195,7 @@ function drawWatermarkOnCanvas(ctx, width, height, options) {
   })
 }
 
-// 缁樺埗鍦嗚鐭╁舰
+// 绘制圆角矩形
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath()
   ctx.moveTo(x + r, y)
@@ -202,7 +206,8 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath()
 }
 
-// 鏍煎紡鍖栨椂闂?function formatTime(date) {
+// 格式化时间
+function formatTime(date) {
   const y = date.getFullYear()
   const m = (date.getMonth() + 1).toString().padStart(2, '0')
   const d = date.getDate().toString().padStart(2, '0')
