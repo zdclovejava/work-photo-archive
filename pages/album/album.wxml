@@ -1,17 +1,17 @@
 <wxml>
-  <!-- 鐓х墖搴撻〉 -->
+  <!-- 照片库页 -->
   <view class="page">
 
-    <!-- 瀵艰埅鏍忥紙鑷畾涔夊彸渚ф寜閽級 -->
+    <!-- 导航栏（自定义右侧按钮） -->
     <view class="nav-bar">
-      <text class="nav-title">鐓х墖搴?/text>
-      <text class="nav-action" bindtap="onSearchTap">鎼滅储</text>
+      <text class="nav-title">照片库</text>
+      <text class="nav-action" bindtap="onSearchTap">搜索</text>
     </view>
 
-    <!-- 鍒嗙被绛涢€塗ab -->
+    <!-- 分类筛选Tab -->
     <scroll-view class="filter-bar" scroll-x="true" enhanced="true" show-scrollbar="{{false}}">
       <view class="filter-pill {{activeFilter === 'all' ? 'filter-active' : 'filter-inactive'}}"
-            bindtap="onFilterTap" data-id="all">鍏ㄩ儴</view>
+            bindtap="onFilterTap" data-id="all">全部</view>
       <view wx:for="{{categories}}" wx:key="id"
             class="filter-pill {{activeFilter === item.id ? 'filter-active' : 'filter-inactive'}}"
             bindtap="onFilterTap" data-id="{{item.id}}">
@@ -19,28 +19,28 @@
       </view>
     </scroll-view>
 
-    <!-- 鐓х墖缃戞牸 -->
+    <!-- 照片网格 -->
     <scroll-view class="photo-grid-scroll" scroll-y="true" enhanced="true"
                  scroll-into-view="{{scrollIntoView}}"
                  scroll-with-animation="true"
                  bindscroll="onScroll">
 
-      <!-- 绌虹姸鎬?-->
+      <!-- 空状态 -->
       <view class="empty-state" wx:if="{{photoGroups.length === 0}}">
-        <text class="empty-icon">馃摲</text>
-        <text class="empty-text">杩樻病鏈夌収鐗?/text>
-        <text class="empty-hint">鐐瑰嚮搴曢儴鎷嶇収鎸夐挳寮€濮嬪瓨妗?/text>
+        <text class="empty-icon">📷</text>
+        <text class="empty-text">还没有照片</text>
+        <text class="empty-hint">点击底部拍照按钮开始存档</text>
       </view>
 
-      <!-- 鍒嗙粍鍒楄〃 -->
+      <!-- 分组列表 -->
       <view wx:for="{{photoGroups}}" wx:key="date" class="photo-group">
-        <!-- 鏃ユ湡鏍囬 -->
+        <!-- 日期标题 -->
         <view class="group-header" id="{{item.groupId}}">
           <text class="group-date">{{item.date}}</text>
-          <text class="group-count">{{item.photos.length}}寮?/text>
+          <text class="group-count">{{item.photos.length}}张</text>
         </view>
 
-        <!-- 3鍒楃綉鏍?-->
+        <!-- 3列网格 -->
         <view class="photo-grid">
           <view wx:for="{{item.photos}}" wx:for-item="photo" wx:key="id"
                 class="photo-card" bindtap="onPhotoTap" data-id="{{photo.id}}">
@@ -48,7 +48,7 @@
                    src="{{photo.thumbnailPath || '/images/thumb-placeholder.png'}}"
                    mode="aspectFill" lazy-load="true"
                    binderror="onThumbError"/>
-            <!-- 鍒嗙被鏍囩 -->
+            <!-- 分类标签 -->
             <view class="photo-tag" wx:if="{{photo.watermark.showCategory}}"
                   style="background:{{photo.categoryColor || '#07C160'}};">
               {{photo.categoryName}}
@@ -59,7 +59,7 @@
 
     </scroll-view>
 
-    <!-- 鍙充晶鏃ユ湡绱㈠紩鏉?-->
+    <!-- 右侧日期索引条 -->
     <view class="date-index-bar" wx:if="{{indexList.length > 1}}"
           catchtouchstart="onIndexTouchStart"
           catchtouchmove="onIndexTouchMove"
@@ -72,12 +72,12 @@
       </view>
     </view>
 
-    <!-- 鏃ユ湡姘旀场鎻愮ず -->
+    <!-- 日期气泡提示 -->
     <view class="date-bubble" wx:if="{{showBubble}}">
       <text class="bubble-text">{{bubbleDate}}</text>
     </view>
 
-    <!-- FAB 鎷嶇収鎸夐挳 -->
+    <!-- FAB 拍照按钮 -->
     <view class="fab-btn" bindtap="onFabTap">
       <view class="fab-icon">
         <view class="fab-circle-inner"></view>
