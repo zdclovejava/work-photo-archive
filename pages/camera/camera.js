@@ -6,27 +6,34 @@ const locationUtil = require('../../utils/location')
 Page({
   data: {
     categories: [],
-    activeCategory: 'all',       // 褰撳墠閫変腑鐨勫垎绫籌D
-    activeCategoryName: '',      // 褰撳墠閫変腑鍒嗙被鍚嶇О
+    activeCategory: 'all',       // 当前选中的分类ID
+    activeCategoryName: '',      // 当前选中分类名称
     activeCategoryColor: '#07C160',
-    hasCameraAuth: false,        // 鐩告満鏉冮檺
-    cameraPosition: 'back',     // 鍓嶇疆/鍚庣疆
-    settings: {},                // 鍏ㄥ眬璁剧疆
+    hasCameraAuth: false,        // 相机权限
+    cameraPosition: 'back',     // 前置/后置
+    settings: {},                // 全局设置
     showWatermarkPreview: true,
-    currentTime: '',            // 瀹炴椂鏃堕棿
-    locationText: '',            // 褰撳墠浣嶇疆
-    showCustomText: false,       // 鏄惁灞曞紑鑷畾涔夋枃瀛?    customText: '',              // 鑷畾涔夋按鍗版枃瀛?    // 闀滃ご鍒囨崲鐩稿叧
-    cameraReady: false,          // 鐩告満鏄惁鍒濆鍖栧畬鎴?    maxZoom: 1,                  // 鐩告満鏈€澶у彉鐒﹀€?    currentZoom: 1,              // 褰撳墠鍙樼劍鍊?    zoomOptions: [               // 鍙敤鍊嶇巼閫夐」锛堝姩鎬佺敓鎴愶級
+    currentTime: '',            // 实时时间
+    locationText: '',            // 当前位置
+    showCustomText: false,       // 是否展开自定义文字
+    customText: '',              // 自定义水印文字
+    // 镜头切换相关
+    cameraReady: false,          // 相机是否初始化完成
+    maxZoom: 1,                  // 相机最大变焦值
+    currentZoom: 1,              // 当前变焦值
+    zoomOptions: [               // 可用倍率选项（动态生成）
       { label: '1x', value: 1 }
     ],
-    _supportsWideAngle: false,   // 鏄惁鏀寔骞胯锛坺oom < 1锛?  },
+    _supportsWideAngle: false,   // 是否支持广角（zoom < 1）
+  },
 
   onLoad() {
     this.checkCameraAuth()
     this.updateSettings()
     this.updateCategories()
     this.startTimeUpdate()
-    // loadLocation 寤惰繜鎵ц纭繚 settings 宸插姞杞?    setTimeout(() => { this.loadLocation() }, 100)
+    // loadLocation 延迟执行确保 settings 已加载
+    setTimeout(() => { this.loadLocation() }, 100)
   },
 
   onShow() {
@@ -35,9 +42,10 @@ Page({
     this.updateCategories()
   },
 
-  // ==================== 鐩告満鏉冮檺 ====================
+  // ==================== 相机权限 ====================
 
-  // 妫€鏌ョ浉鏈烘潈闄?  checkCameraAuth() {
+  // 检查相机权限
+  checkCameraAuth() {
     wx.getSetting({
       success: (res) => {
         const auth = res.authSetting['scope.camera']
@@ -52,7 +60,7 @@ Page({
     })
   },
 
-  // 涓诲姩璇锋眰鐩告満鏉冮檺
+  // 主动请求相机权限
   requestCameraAuth() {
     wx.authorize({
       scope: 'scope.camera',
@@ -62,9 +70,9 @@ Page({
       fail: () => {
         this.setData({ hasCameraAuth: false })
         wx.showModal({
-          title: '闇€瑕佺浉鏈烘潈闄?,
-          content: '璇峰湪璁剧疆涓紑鍚浉鏈烘潈闄愶紝鎵嶈兘浣跨敤鎷嶇収鍔熻兘',
-          confirmText: '鍘昏缃?,
+          title: '需要相机权限',
+          content: '请在设置中开启相机权限，才能使用拍照功能',
+          confirmText: '去设置',
           success: (res) => {
             if (res.confirm) {
               wx.openSetting()
@@ -75,13 +83,15 @@ Page({
     })
   },
 
-  // ==================== 闀滃ご鍒囨崲 ====================
+  // ==================== 镜头切换 ====================
 
-  // 鐩告満鍒濆鍖栧畬鎴?  onCameraInitDone(e) {
+  // 相机初始化完成
+  onCameraInitDone(e) {
     const maxZoom = (e && e.detail && e.detail.maxZoom) ? e.detail.maxZoom : 1
-    console.log('[鐩告満] 鍒濆鍖栧畬鎴愶紝maxZoom:', maxZoom)
+    console.log('[相机] 初始化完成，maxZoom:', maxZoom)
 
-    // 鍓嶇疆鎽勫儚澶撮€氬父涓嶆敮鎸佸彉鐒?    if (this.data.cameraPosition === 'front') {
+    // 前置摄像头通常不支持变焦
+    if (this.data.cameraPosition === 'front') {
       this.setData({
         cameraReady: true,
         maxZoom: 1,
@@ -91,19 +101,20 @@ Page({
       return
     }
 
-    // 鍚庣疆鎽勫儚澶达細鏅鸿兘鎺㈡祴骞胯鏀寔
+    // 后置摄像头：智能探测广角支持
     this._detectWideAngle(maxZoom)
   },
 
-  // 鏅鸿兘鎺㈡祴鏄惁鏀寔骞胯锛坺oom < 1锛?  _detectWideAngle(maxZoom) {
+  // 智能探测是否支持广角（zoom < 1）
+  _detectWideAngle(maxZoom) {
     const ctx = wx.createCameraContext()
     this._zoomCtx = ctx
 
-    // 鍏堝皾璇?0.5x
+    // 先尝试 0.5x
     ctx.setZoom({
       zoom: 0.5,
       success: () => {
-        // 鏀寔骞胯锛屾仮澶?1x
+        // 支持广角，恢复 1x
         ctx.setZoom({
           zoom: 1,
           success: () => {
@@ -115,12 +126,13 @@ Page({
         })
       },
       fail: () => {
-        // 涓嶆敮鎸佸箍瑙?        this._finalizeZoomOptions(maxZoom, false)
+        // 不支持广角
+        this._finalizeZoomOptions(maxZoom, false)
       }
     })
   },
 
-  // 鏍规嵁璁惧鑳藉姏鐢熸垚鍙敤鍊嶇巼鍒楄〃
+  // 根据设备能力生成可用倍率列表
   _finalizeZoomOptions(maxZoom, supportsWideAngle) {
     this._supportsWideAngle = supportsWideAngle
     const options = []
@@ -136,7 +148,7 @@ Page({
     if (maxZoom >= 3) {
       options.push({ label: '3x', value: 3 })
     }
-    // 濡傛灉 maxZoom > 3锛岃拷鍔犳渶澶у€嶇巼鎸夐挳
+    // 如果 maxZoom > 3，追加最大倍率按钮
     if (maxZoom > 3) {
       const maxLabel = Math.floor(maxZoom) >= 10 ? '10x' : Math.floor(maxZoom) + 'x'
       options.push({ label: maxLabel, value: Math.floor(maxZoom) })
@@ -150,7 +162,7 @@ Page({
     })
   },
 
-  // 鍒囨崲闀滃ご鍊嶇巼
+  // 切换镜头倍率
   onZoomTap(e) {
     const zoom = Number(e.currentTarget.dataset.zoom)
     if (zoom === this.data.currentZoom) return
@@ -163,39 +175,39 @@ Page({
       zoom: zoom,
       success: () => {
         this.setData({ currentZoom: zoom })
-        console.log('[鐩告満] 鍙樼劍鎴愬姛:', zoom + 'x')
+        console.log('[相机] 变焦成功:', zoom + 'x')
       },
       fail: (err) => {
-        console.warn('[鐩告満] 鍙樼劍澶辫触:', err)
+        console.warn('[相机] 变焦失败:', err)
         wx.showToast({
-          title: '璇ュ€嶇巼涓嶆敮鎸?,
+          title: '该倍率不支持',
           icon: 'none',
           duration: 1500
         })
-        // 鍥為€€鍒?1x
+        // 回退到 1x
         this.setData({ currentZoom: 1 })
         ctx.setZoom({ zoom: 1 })
       }
     })
   },
 
-  // ==================== 璁剧疆/鍒嗙被/姘村嵃 ====================
+  // ==================== 设置/分类/水印 ====================
 
-  // 鏇存柊璁剧疆
+  // 更新设置
   updateSettings() {
     this.setData({
       settings: app.globalData.settings
     })
   },
 
-  // 鏇存柊鍒嗙被鍒楄〃
+  // 更新分类列表
   updateCategories() {
     this.setData({
       categories: storage.getCategories()
     })
   },
 
-  // 瀹炴椂鏇存柊鏃堕棿锛堟瘡绉掑埛鏂帮級
+  // 实时更新时间（每秒刷新）
   startTimeUpdate() {
     this.updateTime()
     this._timeTimer = setInterval(() => {
@@ -212,7 +224,7 @@ Page({
     })
   },
 
-  // 鍔犺浇浣嶇疆
+  // 加载位置
   loadLocation() {
     if (!app.globalData.settings.defaultLocationWatermark) return
     locationUtil.getLocation()
@@ -220,11 +232,11 @@ Page({
         this.setData({ locationText: loc.address })
       })
       .catch(() => {
-        this.setData({ locationText: '鏈紑鍚畾浣? })
+        this.setData({ locationText: '未开启定位' })
       })
   },
 
-  // 鍒嗙被閫夋嫨
+  // 分类选择
   onCategoryTap(e) {
     const id = e.currentTarget.dataset.id
     if (id === 'all') {
@@ -243,12 +255,12 @@ Page({
     })
   },
 
-  // 娣诲姞鍒嗙被
+  // 添加分类
   onAddCategory() {
     wx.showModal({
-      title: '娣诲姞鍒嗙被',
+      title: '添加分类',
       editable: true,
-      placeholderText: '杈撳叆鍒嗙被鍚嶇О',
+      placeholderText: '输入分类名称',
       success: (res) => {
         if (res.confirm && res.content) {
           const colors = ['#07C160', '#4CAF50', '#8BC34A', '#689F38', '#558B2F', '#388E3C']
@@ -260,14 +272,14 @@ Page({
     })
   },
 
-  // 寮€鍏?- 鏃堕棿姘村嵃
+  // 开关 - 时间水印
   toggleTimeWatermark() {
     app.globalData.settings.defaultTimeWatermark = !app.globalData.settings.defaultTimeWatermark
     app.saveSettings()
     this.updateSettings()
   },
 
-  // 寮€鍏?- 鍦扮偣姘村嵃
+  // 开关 - 地点水印
   toggleLocationWatermark() {
     app.globalData.settings.defaultLocationWatermark = !app.globalData.settings.defaultLocationWatermark
     app.saveSettings()
@@ -277,13 +289,15 @@ Page({
     }
   },
 
-  // 寮€鍏?- 鑷畾涔夋枃瀛?  toggleCustomText() {
+  // 开关 - 自定义文字
+  toggleCustomText() {
     this.setData({
       showCustomText: !this.data.showCustomText
     })
   },
 
-  // 鑷畾涔夋枃瀛楄緭鍏?  onCustomTextInput(e) {
+  // 自定义文字输入
+  onCustomTextInput(e) {
     this.setData({ customText: e.detail.value })
   },
 
@@ -291,9 +305,9 @@ Page({
     this.setData({ customText: e.detail.value })
   },
 
-  // ==================== 鎷嶇収鎿嶄綔 ====================
+  // ==================== 拍照操作 ====================
 
-  // 鎷嶇収
+  // 拍照
   onTakePhoto() {
     if (!this.data.hasCameraAuth) {
       this.requestCameraAuth()
@@ -303,7 +317,7 @@ Page({
     ctx.takePhoto({
       quality: 'high',
       success: (res) => {
-        // 璺宠浆鍒伴瑙堥〉
+        // 跳转到预览页
         const { activeCategory, customText, settings, currentZoom } = this.data
         const watermark = {
           time: settings.defaultTimeWatermark,
@@ -322,13 +336,13 @@ Page({
         })
       },
       fail: (err) => {
-        console.error('鎷嶇収澶辫触', err)
-        wx.showToast({ title: '鎷嶇収澶辫触', icon: 'none' })
+        console.error('拍照失败', err)
+        wx.showToast({ title: '拍照失败', icon: 'none' })
       }
     })
   },
 
-  // 鐩稿唽閫夊彇
+  // 相册选取
   onAlbumTap() {
     photoManager.chooseImage('album')
       .then(tempPath => {
@@ -351,21 +365,22 @@ Page({
       .catch(() => {})
   },
 
-  // 缈昏浆鎽勫儚澶?  onFlipTap() {
+  // 翻转摄像头
+  onFlipTap() {
     this.setData({
       cameraPosition: this.data.cameraPosition === 'back' ? 'front' : 'back',
       currentZoom: 1,
-      cameraReady: false  // 缈昏浆鍚庨渶绛夊緟閲嶆柊 initdone
+      cameraReady: false  // 翻转后需等待重新 initdone
     })
   },
 
-  // 鎵撳紑璁剧疆
+  // 打开设置
   openSetting() {
     wx.openSetting()
   },
 
   onCameraError(e) {
-    console.error('鐩告満閿欒', e)
+    console.error('相机错误', e)
     this.setData({ hasCameraAuth: false })
   },
 
