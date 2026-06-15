@@ -1,12 +1,12 @@
 <wxml>
-  <!-- 棰勮缂栬緫椤?-->
+  <!-- 预览编辑页 -->
   <view class="page">
 
-    <!-- 鐓х墖棰勮鍖哄煙锛堟繁鑹茶儗鏅級 -->
+    <!-- 照片预览区域（深色背景） -->
     <view class="preview-area">
       <image class="preview-image" src="{{tempPath}}" mode="aspectFit" bindtap="onImagePreview"/>
 
-      <!-- 姘村嵃鍙犲姞棰勮 -->
+      <!-- 水印叠加预览 -->
       <view class="watermark-overlay" wx:if="{{showWatermarkOverlay}}">
         <view class="wm-line" wx:if="{{watermark.time}}">{{watermark.timeText}}</view>
         <view class="wm-line" wx:if="{{watermark.location}}">{{watermark.locationText}}</view>
@@ -18,15 +18,15 @@
       </view>
     </view>
 
-    <!-- 缂栬緫闈㈡澘锛堝簳閮ㄦ娊灞夛級 -->
+    <!-- 编辑面板（底部抽屉） -->
     <view class="edit-panel">
 
-      <!-- 鎶藉眽鎶婃墜 -->
+      <!-- 抽屉把手 -->
       <view class="panel-handle"></view>
 
-      <!-- 鍒嗙被閫夋嫨 -->
+      <!-- 分类选择 -->
       <view class="panel-section">
-        <text class="section-label">鍒嗙被</text>
+        <text class="section-label">分类</text>
         <scroll-view class="category-scroll" scroll-x="true" enhanced="true" show-scrollbar="{{false}}">
           <view wx:for="{{categories}}" wx:key="id"
                 class="cat-pill {{categoryId === item.id ? 'cat-active' : 'cat-inactive'}}"
@@ -37,45 +37,45 @@
         </scroll-view>
       </view>
 
-      <!-- 姘村嵃寮€鍏?-->
+      <!-- 水印开关 -->
       <view class="panel-section">
-        <text class="section-label">姘村嵃</text>
+        <text class="section-label">水印</text>
         <view class="watermark-switches">
           <view class="wm-switch-item">
-            <text class="wm-switch-label">鏃堕棿姘村嵃</text>
+            <text class="wm-switch-label">时间水印</text>
             <switch checked="{{watermark.time}}" bindchange="onTimeWatermarkChange"
                     color="#07C160"/>
           </view>
           <view class="wm-switch-item">
-            <text class="wm-switch-label">鍦扮偣姘村嵃</text>
+            <text class="wm-switch-label">地点水印</text>
             <switch checked="{{watermark.location}}" bindchange="onLocationWatermarkChange"
                     color="#07C160"/>
           </view>
         </view>
       </view>
 
-      <!-- 鑷畾涔夋枃瀛?-->
+      <!-- 自定义文字 -->
       <view class="panel-section">
-        <text class="section-label">鏂囧瓧</text>
-        <input class="text-field" placeholder="杈撳叆鑷畾涔夋按鍗版枃瀛?.."
+        <text class="section-label">文字</text>
+        <input class="text-field" placeholder="输入自定义水印文字..."
                value="{{watermark.customText}}" bindinput="onCustomTextInput"/>
       </view>
 
-      <!-- 澶囨敞 -->
+      <!-- 备注 -->
       <view class="panel-section">
-        <text class="section-label">澶囨敞</text>
-        <input class="text-field" placeholder="鍙€夛紝娣诲姞澶囧繕淇℃伅"
+        <text class="section-label">备注</text>
+        <input class="text-field" placeholder="可选，添加备忘信息"
                value="{{note}}" bindinput="onNoteInput"/>
       </view>
 
-      <!-- 淇濆瓨鎸夐挳 -->
+      <!-- 保存按钮 -->
       <view class="save-btn" bindtap="onSave">
-        <text class="save-btn-text">淇濆瓨鍒扮浉鍐?/text>
+        <text class="save-btn-text">保存到相册</text>
       </view>
 
-      <!-- 閲嶆媿鎸夐挳 -->
+      <!-- 重拍按钮 -->
       <view class="retake-btn" bindtap="onRetake">
-        <text class="retake-text">閲嶆媿</text>
+        <text class="retake-text">重拍</text>
       </view>
 
     </view>
