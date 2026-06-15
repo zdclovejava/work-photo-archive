@@ -8,7 +8,7 @@
   ],
   "window": {
     "navigationBarBackgroundColor": "#EDEDED",
-    "navigationBarTitleText": "宸ヤ綔鎷嶇収瀛樻。",
+    "navigationBarTitleText": "工作拍照存档",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#EDEDED",
     "backgroundTextStyle": "dark"
@@ -21,19 +21,19 @@
     "list": [
       {
         "pagePath": "pages/camera/camera",
-        "text": "鎷嶇収",
+        "text": "拍照",
         "iconPath": "images/tab-camera.png",
         "selectedIconPath": "images/tab-camera-active.png"
       },
       {
         "pagePath": "pages/album/album",
-        "text": "鐓х墖搴?,
+        "text": "照片库",
         "iconPath": "images/tab-album.png",
         "selectedIconPath": "images/tab-album-active.png"
       },
       {
         "pagePath": "pages/settings/settings",
-        "text": "璁剧疆",
+        "text": "设置",
         "iconPath": "images/tab-settings.png",
         "selectedIconPath": "images/tab-settings-active.png"
       }
@@ -41,13 +41,13 @@
   },
   "permission": {
     "scope.camera": {
-      "desc": "鐢ㄤ簬鎷嶆憚宸ヤ綔鐓х墖"
+      "desc": "用于拍摄工作照片"
     },
     "scope.writePhotosAlbum": {
-      "desc": "鐢ㄤ簬灏嗗甫姘村嵃鐨勭収鐗囦繚瀛樺埌绯荤粺鐩稿唽"
+      "desc": "用于将带水印的照片保存到系统相册"
     },
     "scope.userLocation": {
-      "desc": "鐢ㄤ簬鑾峰彇鎷嶆憚鍦扮偣浣滀负姘村嵃"
+      "desc": "用于获取拍摄地点作为水印"
     }
   },
   "requiredPrivateInfos": [
