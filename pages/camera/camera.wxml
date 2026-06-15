@@ -1,11 +1,11 @@
 <wxml>
-  <!-- 鎷嶇収椤?-->
+  <!-- 拍照页 -->
   <view class="page">
 
-    <!-- 鍒嗙被閫夋嫨鏍?-->
+    <!-- 分类选择栏 -->
     <scroll-view class="category-bar" scroll-x="true" enhanced="true" show-scrollbar="{{false}}">
       <view class="category-pill {{activeCategory === 'all' ? 'active' : 'inactive'}}"
-            bindtap="onCategoryTap" data-id="all">鍏ㄩ儴</view>
+            bindtap="onCategoryTap" data-id="all">全部</view>
       <view wx:for="{{categories}}" wx:key="id"
             class="category-pill {{activeCategory === item.id ? 'active' : 'inactive'}}"
             bindtap="onCategoryTap" data-id="{{item.id}}"
@@ -15,9 +15,9 @@
       <view class="category-pill inactive" bindtap="onAddCategory">+</view>
     </scroll-view>
 
-    <!-- 鐩告満鍙栨櫙鍖哄煙 -->
+    <!-- 相机取景区域 -->
     <view class="camera-area">
-      <!-- 鏈夌浉鏈烘潈闄愭椂鏄剧ず鐩告満 -->
+      <!-- 有相机权限时显示相机 -->
       <camera wx:if="{{hasCameraAuth}}"
               class="camera-view"
               device-position="{{cameraPosition}}"
@@ -25,7 +25,7 @@
               binderror="onCameraError"
               bindinitdone="onCameraInitDone">
 
-        <!-- 姘村嵃棰勮娴眰 -->
+        <!-- 水印预览浮层 -->
         <view class="watermark-preview" wx:if="{{showWatermarkPreview}}">
           <view class="watermark-line" wx:if="{{settings.defaultTimeWatermark}}">
             {{currentTime}}
@@ -42,7 +42,7 @@
           </view>
         </view>
 
-        <!-- 闀滃ご鍊嶇巼鍒囨崲锛堢浉鏈哄垵濮嬪寲鍚庢樉绀猴級 -->
+        <!-- 镜头倍率切换（相机初始化后显示） -->
         <view class="zoom-bar" wx:if="{{cameraReady}}">
           <view wx:for="{{zoomOptions}}" wx:key="label"
                 class="zoom-btn {{currentZoom === item.value ? 'zoom-active' : 'zoom-inactive'}}"
@@ -51,25 +51,25 @@
           </view>
         </view>
 
-        <!-- 鍙栨櫙杈呭姪绾?-->
+        <!-- 取景辅助线 -->
         <view class="guide-frame">
           <view class="guide-h"></view>
           <view class="guide-v"></view>
         </view>
       </camera>
 
-      <!-- 鏃犵浉鏈烘潈闄愭椂鐨勫崰浣?-->
+      <!-- 无相机权限时的占位 -->
       <view class="camera-placeholder" wx:if="{{!hasCameraAuth}}">
-        <text class="placeholder-text">璇锋巿鏉冪浉鏈烘潈闄?/text>
-        <view class="btn-secondary" bindtap="openSetting">鍘昏缃?/view>
+        <text class="placeholder-text">请授权相机权限</text>
+        <view class="btn-secondary" bindtap="openSetting">去设置</view>
       </view>
     </view>
 
-    <!-- 蹇嵎寮€鍏虫潯 -->
+    <!-- 快捷开关条 -->
     <view class="switch-bar">
       <view class="switch-item" bindtap="toggleTimeWatermark">
         <view class="switch-icon" style="background:{{settings.defaultTimeWatermark ? '#07C160' : '#ccc'}};">T</view>
-        <text class="switch-label">鏃堕棿</text>
+        <text class="switch-label">时间</text>
         <view class="switch-track {{settings.defaultTimeWatermark ? 'on' : 'off'}}">
           <view class="switch-thumb"></view>
         </view>
@@ -77,7 +77,7 @@
 
       <view class="switch-item" bindtap="toggleLocationWatermark">
         <view class="switch-icon" style="background:{{settings.defaultLocationWatermark ? '#07C160' : '#ccc'}};">L</view>
-        <text class="switch-label">鍦扮偣</text>
+        <text class="switch-label">地点</text>
         <view class="switch-track {{settings.defaultLocationWatermark ? 'on' : 'off'}}">
           <view class="switch-thumb"></view>
         </view>
@@ -85,39 +85,39 @@
 
       <view class="switch-item" bindtap="toggleCustomText">
         <view class="switch-icon" style="background:{{showCustomText ? '#07C160' : '#ccc'}};">W</view>
-        <text class="switch-label">鏂囧瓧</text>
+        <text class="switch-label">文字</text>
         <view class="switch-track {{showCustomText ? 'on' : 'off'}}">
           <view class="switch-thumb"></view>
         </view>
       </view>
     </view>
 
-    <!-- 鑷畾涔夋枃瀛楄緭鍏ワ紙灞曞紑鏃舵樉绀猴級 -->
+    <!-- 自定义文字输入（展开时显示） -->
     <view class="custom-text-input" wx:if="{{showCustomText}}">
-      <input class="text-field" placeholder="杈撳叆鑷畾涔夋按鍗版枃瀛?.."
+      <input class="text-field" placeholder="输入自定义水印文字..."
              value="{{customText}}" bindinput="onCustomTextInput"
              confirm-type="done" bindconfirm="onCustomTextConfirm"/>
     </view>
 
-    <!-- 搴曢儴鎿嶄綔鍖?-->
+    <!-- 底部操作区 -->
     <view class="bottom-bar">
-      <!-- 鐩稿唽鍏ュ彛 -->
+      <!-- 相册入口 -->
       <view class="album-btn" bindtap="onAlbumTap">
         <view class="album-icon">
           <view class="album-icon-inner"></view>
         </view>
-        <text class="bar-label">鐩稿唽</text>
+        <text class="bar-label">相册</text>
       </view>
 
-      <!-- 鎷嶇収鎸夐挳 -->
+      <!-- 拍照按钮 -->
       <view class="shutter-btn" bindtap="onTakePhoto">
         <view class="shutter-inner"></view>
       </view>
 
-      <!-- 缈昏浆鎸夐挳 -->
+      <!-- 翻转按钮 -->
       <view class="flip-btn" bindtap="onFlipTap">
-        <text class="flip-icon">鉄?/text>
-        <text class="bar-label">缈昏浆</text>
+        <text class="flip-icon">⟳</text>
+        <text class="bar-label">翻转</text>
       </view>
     </view>
 
