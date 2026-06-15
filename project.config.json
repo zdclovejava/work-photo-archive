@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "./",
   "projectname": "work-photo-archive",
-  "description": "宸ヤ綔鎷嶇収瀛樻。寰俊灏忕▼搴?,
+  "description": "工作拍照存档微信小程序",
   "appid": "wx58fe4d8825a81572",
   "setting": {
     "urlCheck": false,
