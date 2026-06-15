@@ -3,13 +3,15 @@ const storage = require('../../utils/storage')
 Page({
   data: {
     categories: [],
-    activeFilter: 'all',  // 褰撳墠绛涢€夊垎绫?    photoGroups: [],       // 鎸夋棩鏈熷垎缁勭殑鐓х墖
-    // 鏃ユ湡绱㈠紩鐩稿叧
-    indexList: [],          // 绱㈠紩鍒楄〃 [{ date, label }]
-    scrollIntoView: '',     // scroll-into-view 鐩爣 id
-    showBubble: false,      // 鏄惁鏄剧ず鏃ユ湡姘旀场
-    bubbleDate: '',         // 姘旀场涓樉绀虹殑鏃ユ湡
-    activeIndexDate: '',    // 褰撳墠楂樹寒鐨勭储寮曟棩鏈?  },
+    activeFilter: 'all',  // 当前筛选分类
+    photoGroups: [],       // 按日期分组的照片
+    // 日期索引相关
+    indexList: [],          // 索引列表 [{ date, label }]
+    scrollIntoView: '',     // scroll-into-view 目标 id
+    showBubble: false,      // 是否显示日期气泡
+    bubbleDate: '',         // 气泡中显示的日期
+    activeIndexDate: '',    // 当前高亮的索引日期
+  },
 
   onLoad() {
     this.updateData()
@@ -20,22 +22,24 @@ Page({
   },
 
   onReady() {
-    // 缂撳瓨绱㈠紩鏉′綅缃俊鎭紙鐢ㄤ簬鎷栨嫿璁＄畻锛?    this._cacheIndexBarRect()
+    // 缓存索引条位置信息（用于拖拽计算）
+    this._cacheIndexBarRect()
   },
 
-  // ==================== 鏁版嵁鏇存柊 ====================
+  // ==================== 数据更新 ====================
 
-  // 鏇存柊鏁版嵁
+  // 更新数据
   updateData() {
     const categories = storage.getCategories()
     const photoGroups = storage.getPhotosGrouped(this.data.activeFilter)
 
-    // 涓烘瘡涓収鐗囨坊鍔犲垎绫婚鑹?+ 鐢熸垚鍒嗙粍 id
+    // 为每个照片添加分类颜色 + 生成分组 id
     const categoryMap = {}
     categories.forEach(c => { categoryMap[c.id] = c })
 
     photoGroups.forEach(group => {
-      // 鐢熸垚瀹夊叏鐨?groupId锛堜笉鍚腑鏂囷紝鐢ㄤ簬 scroll-into-view锛?      if (!group.groupId) {
+      // 生成安全的 groupId（不含中文，用于 scroll-into-view）
+      if (!group.groupId) {
         group.groupId = this._getGroupId(group.date)
       }
       group.photos.forEach(photo => {
@@ -45,7 +49,7 @@ Page({
       })
     })
 
-    // 璁＄畻鏃ユ湡绱㈠紩鍒楄〃
+    // 计算日期索引列表
     const indexList = photoGroups.map(group => ({
       date: group.date,
       label: this._getIndexLabel(group.date)
@@ -55,21 +59,24 @@ Page({
       categories,
       photoGroups,
       indexList,
-      // 閲嶇疆绱㈠紩鐘舵€?      activeIndexDate: '',
+      // 重置索引状态
+      activeIndexDate: '',
       showBubble: false
     })
   },
 
-  // 鐢熸垚鍒嗙粍 id锛堜笉鍚腑鏂囷紝鐢ㄤ簬 scroll-into-view锛?  _getGroupId(dateStr) {
-    if (dateStr === '浠婂ぉ') return 'group-today'
-    if (dateStr === '鏄ㄥぉ') return 'group-yesterday'
-    // '2026-06-05' -> 'group-2026-06-05'锛堝畨鍏級
+  // 生成分组 id（不含中文，用于 scroll-into-view）
+  _getGroupId(dateStr) {
+    if (dateStr === '今天') return 'group-today'
+    if (dateStr === '昨天') return 'group-yesterday'
+    // '2026-06-05' -> 'group-2026-06-05'（安全）
     return 'group-' + dateStr
   },
 
-  // 鐢熸垚绱㈠紩鏉℃樉绀烘枃瀛?  _getIndexLabel(dateStr) {
-    if (dateStr === '浠婂ぉ') return '浠?
-    if (dateStr === '鏄ㄥぉ') return '鏄?
+  // 生成索引条显示文字
+  _getIndexLabel(dateStr) {
+    if (dateStr === '今天') return '今'
+    if (dateStr === '昨天') return '昨'
     // '2026-06-05' -> '6/5'
     const parts = dateStr.split('-')
     if (parts.length === 3) {
@@ -80,17 +87,18 @@ Page({
     return dateStr
   },
 
-  // ==================== 鍒嗙被绛涢€?====================
+  // ==================== 分类筛选 ====================
 
-  // 鍒嗙被绛涢€?  onFilterTap(e) {
+  // 分类筛选
+  onFilterTap(e) {
     const id = e.currentTarget.dataset.id
     this.setData({ activeFilter: id })
     this.updateData()
   },
 
-  // ==================== 鏃ユ湡绱㈠紩鏉?====================
+  // ==================== 日期索引条 ====================
 
-  // 缂撳瓨绱㈠紩鏉?boundingClientRect
+  // 缓存索引条 boundingClientRect
   _cacheIndexBarRect() {
     const query = wx.createSelectorQuery()
     query.select('.date-index-bar').boundingClientRect()
@@ -104,12 +112,13 @@ Page({
     })
   },
 
-  // 鐐瑰嚮绱㈠紩椤?-> 璺宠浆鍒板搴斿垎缁?  onIndexTap(e) {
+  // 点击索引项 -> 跳转到对应分组
+  onIndexTap(e) {
     const date = e.currentTarget.dataset.date
     this._jumpToGroup(date)
   },
 
-  // 瑙︽懜寮€濮?+ 绉诲姩锛堝叡鐢級
+  // 触摸开始 + 移动（共用）
   onIndexTouchStart(e) {
     this._handleIndexTouch(e)
   },
@@ -118,49 +127,54 @@ Page({
     this._handleIndexTouch(e)
   },
 
-  // 瑙︽懜缁撴潫 -> 闅愯棌姘旀场銆佹竻闄ら珮浜?  onIndexTouchEnd() {
+  // 触摸结束 -> 隐藏气泡、清除高亮
+  onIndexTouchEnd() {
     this.setData({ activeIndexDate: '' })
-    // 1.5绉掑悗闅愯棌姘旀场
+    // 1.5秒后隐藏气泡
     if (this._bubbleTimer) clearTimeout(this._bubbleTimer)
     this._bubbleTimer = setTimeout(() => {
       this.setData({ showBubble: false })
     }, 1500)
   },
 
-  // 鏍规嵁瑙︽懜浣嶇疆璁＄畻鐩爣鍒嗙粍骞惰烦杞?  _handleIndexTouch(e) {
+  // 根据触摸位置计算目标分组并跳转
+  _handleIndexTouch(e) {
     const touch = e.touches[0]
     if (!touch) return
 
     const barInfo = this._barInfo
     if (!barInfo) {
-      // 杩樻湭缂撳瓨锛岄噸鏂拌幏鍙?      this._cacheIndexBarRect()
+      // 还未缓存，重新获取
+      this._cacheIndexBarRect()
       return
     }
 
     const indexList = this.data.indexList
     if (!indexList || indexList.length === 0) return
 
-    // 璁＄畻瑙︽懜浣嶇疆鍦ㄧ储寮曟潯涓殑姣斾緥
+    // 计算触摸位置在索引条中的比例
     const relativeY = touch.clientY - barInfo.top
     const ratio = relativeY / barInfo.height
 
-    // 鏍规嵁姣斾緥鎵惧埌瀵瑰簲鐨勭储寮曢」
+    // 根据比例找到对应的索引项
     const index = Math.round(ratio * (indexList.length - 1))
     const clampedIndex = Math.max(0, Math.min(index, indexList.length - 1))
 
     const targetItem = indexList[clampedIndex]
     if (!targetItem) return
 
-    // 鑺傛祦锛氱浉鍚屾棩鏈熶笉閲嶅璺宠浆
+    // 节流：相同日期不重复跳转
     if (this.data.activeIndexDate !== targetItem.date) {
       this._jumpToGroup(targetItem.date)
     }
   },
 
-  // 璺宠浆鍒版寚瀹氭棩鏈熷垎缁?  _jumpToGroup(date) {
+  // 跳转到指定日期分组
+  _jumpToGroup(date) {
     const targetId = this._getGroupId(date)
 
-    // scroll-into-view 鐩稿悓鍊奸渶鍏堟竻绌哄啀璁?    if (this.data.scrollIntoView === targetId) {
+    // scroll-into-view 相同值需先清空再设
+    if (this.data.scrollIntoView === targetId) {
       this.setData({ scrollIntoView: '' }, () => {
         this.setData({
           scrollIntoView: targetId,
@@ -177,11 +191,11 @@ Page({
     this.showDateBubble(date)
   },
 
-  // 鏄剧ず鏃ユ湡姘旀场
+  // 显示日期气泡
   showDateBubble(date) {
     if (this._bubbleTimer) clearTimeout(this._bubbleTimer)
 
-    // 鎵惧埌瀹屾暣鏃ユ湡鐢ㄤ簬鏄剧ず
+    // 找到完整日期用于显示
     const group = this.data.photoGroups.find(g => g.date === date)
     const displayDate = group ? group.date : date
 
@@ -191,26 +205,30 @@ Page({
     })
   },
 
-  // 婊氬姩鏃舵洿鏂板綋鍓嶉珮浜殑绱㈠紩椤?  onScroll(e) {
-    // 鑺傛祦锛氭瘡 100ms 鏈€澶氭洿鏂颁竴娆?    const now = Date.now()
+  // 滚动时更新当前高亮的索引项
+  onScroll(e) {
+    // 节流：每 100ms 最多更新一次
+    const now = Date.now()
     if (this._lastScrollTime && now - this._lastScrollTime < 100) return
     this._lastScrollTime = now
 
-    // 鑾峰彇褰撳墠 scrollTop 浣嶇疆锛屾壘鍒板彲瑙嗗尯鍩熼《閮ㄥ搴旂殑鍒嗙粍
+    // 获取当前 scrollTop 位置，找到可视区域顶部对应的分组
     const scrollTop = e.detail.scrollTop
     const query = wx.createSelectorQuery()
 
-    // 鎵惧埌绗竴涓秴杩?scrollTop 鐨勫垎缁?header
+    // 找到第一个超过 scrollTop 的分组 header
     query.selectAll('.group-header').boundingClientRect()
     query.exec((res) => {
       if (!res || !res[0]) return
       const headers = res[0]
-      // 鎵惧埌绗竴涓湪鍙鍖哄煙涓婃柟鐨勫垎缁?      let currentDate = ''
+      // 找到第一个在可视区域上方的分组
+      let currentDate = ''
       for (let i = headers.length - 1; i >= 0; i--) {
-        if (headers[i].top <= 100) {  // 椤堕儴鍋忕Щ
-          // 浠?id 瑙ｆ瀽鍑烘棩鏈?          const id = headers[i].id
-          if (id === 'group-today') currentDate = '浠婂ぉ'
-          else if (id === 'group-yesterday') currentDate = '鏄ㄥぉ'
+        if (headers[i].top <= 100) {  // 顶部偏移
+          // 从 id 解析出日期
+          const id = headers[i].id
+          if (id === 'group-today') currentDate = '今天'
+          else if (id === 'group-yesterday') currentDate = '昨天'
           else currentDate = id.replace('group-', '')
           break
         }
@@ -221,9 +239,9 @@ Page({
     })
   },
 
-  // ==================== 鍏朵粬 ====================
+  // ==================== 其他 ====================
 
-  // 鐐瑰嚮鐓х墖
+  // 点击照片
   onPhotoTap(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({
@@ -231,19 +249,20 @@ Page({
     })
   },
 
-  // FAB 鎷嶇収
+  // FAB 拍照
   onFabTap() {
     wx.switchTab({
       url: '/pages/camera/camera'
     })
   },
 
-  // 鎼滅储锛堟殏鏈疄鐜帮級
+  // 搜索（暂未实现）
   onSearchTap() {
-    wx.showToast({ title: '鎼滅储鍔熻兘寮€鍙戜腑', icon: 'none' })
+    wx.showToast({ title: '搜索功能开发中', icon: 'none' })
   },
 
-  // 缂╃暐鍥惧姞杞藉け璐?  onThumbError(e) {
-    console.warn('缂╃暐鍥惧姞杞藉け璐?, e)
+  // 缩略图加载失败
+  onThumbError(e) {
+    console.warn('缩略图加载失败', e)
   }
 })
