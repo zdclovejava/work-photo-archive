@@ -3,8 +3,10 @@ const photoManager = require('../../utils/photoManager')
 
 Page({
   data: {
-    photos: [],           // 褰撳墠绛涢€夊悗鐨勭収鐗囧垪琛?    currentIndex: 0,      // 褰撳墠swiper绱㈠紩
-    currentPhoto: null,   // 褰撳墠鏄剧ず鐨勭収鐗?    watermarkPreview: '', // 姘村嵃棰勮鏂囨湰
+    photos: [],           // 当前筛选后的照片列表
+    currentIndex: 0,      // 当前swiper索引
+    currentPhoto: null,   // 当前显示的照片
+    watermarkPreview: '', // 水印预览文本
   },
 
   onLoad(options) {
@@ -13,13 +15,13 @@ Page({
   },
 
   onShow() {
-    // 浠庣紪杈戝娉ㄨ繑鍥炲悗鍒锋柊
+    // 从编辑备注返回后刷新
     if (this.data.currentPhoto) {
       this.refreshCurrentPhoto()
     }
   },
 
-  // 鍔犺浇鐓х墖鍒楄〃锛屽畾浣嶅埌鎸囧畾ID
+  // 加载照片列表，定位到指定ID
   loadPhotos(targetId) {
     const photos = storage.getPhotos()
     const categories = storage.getCategories()
@@ -49,17 +51,17 @@ Page({
     })
   },
 
-  // 鏋勫缓姘村嵃棰勮鏂囨湰
+  // 构建水印预览文本
   buildWatermarkPreview(photo) {
     if (!photo) return ''
     const parts = []
     if (photo.watermark.time) parts.push(photo.watermark.time)
     if (photo.watermark.location) parts.push(photo.watermark.location)
     if (photo.watermark.customText) parts.push(photo.watermark.customText)
-    return parts.join(' | ') || '鏃犳按鍗?
+    return parts.join(' | ') || '无水印'
   },
 
-  // 鍒锋柊褰撳墠鐓х墖锛堜粠缂栬緫杩斿洖鏃讹級
+  // 刷新当前照片（从编辑返回时）
   refreshCurrentPhoto() {
     const photos = storage.getPhotos()
     const currentId = this.data.currentPhoto.id
@@ -72,7 +74,7 @@ Page({
     }
   },
 
-  // Swiper 鍒囨崲
+  // Swiper 切换
   onSwiperChange(e) {
     const index = e.detail.current
     const photo = this.data.photos[index]
@@ -83,19 +85,21 @@ Page({
     })
   },
 
-  // 涓婁竴寮?  onPrev() {
+  // 上一张
+  onPrev() {
     if (this.data.currentIndex > 0) {
       this.setData({ currentIndex: this.data.currentIndex - 1 })
     }
   },
 
-  // 涓嬩竴寮?  onNext() {
+  // 下一张
+  onNext() {
     if (this.data.currentIndex < this.data.photos.length - 1) {
       this.setData({ currentIndex: this.data.currentIndex + 1 })
     }
   },
 
-  // 鐐瑰嚮鐓х墖鍏ㄥ睆棰勮
+  // 点击照片全屏预览
   onPhotoPreview(e) {
     const src = e.currentTarget.dataset.src
     if (src) {
@@ -103,22 +107,24 @@ Page({
     }
   },
 
-  // 閲嶆柊淇濆瓨鍒扮浉鍐?  async onSaveToAlbum() {
-    // 娉ㄦ剰锛氱缉鐣ュ浘鏄帇缂╁悗鐨勶紝鏃犳硶鐩存帴淇濆瓨鍒扮浉鍐?    // 瀹為檯椤圭洰涓渶瑕佷繚瀛樺師鍥惧埌鐩稿唽锛堝弬鑰冭璁℃枃妗ｏ紝鍘熷浘瀛樼郴缁熺浉鍐岋級
-    // 姝ゅ鎻愮ず鐢ㄦ埛锛氬師鍥惧凡鍦ㄧ郴缁熺浉鍐屼腑
+  // 重新保存到相册
+  async onSaveToAlbum() {
+    // 注意：缩略图是压缩后的，无法直接保存到相册
+    // 实际项目中需要保存原图到相册（参考设计文档，原图存系统相册）
+    // 此处提示用户：原图已在系统相册中
     wx.showModal({
-      title: '鎻愮ず',
-      content: '甯︽按鍗扮殑鍘熷浘宸蹭繚瀛樺湪绯荤粺鐩稿唽涓€傚闇€閲嶆柊淇濆瓨锛岃鍦ㄧ郴缁熺浉鍐屼腑鎵惧埌璇ョ収鐗囥€?,
+      title: '提示',
+      content: '带水印的原图已保存在系统相册中。如需重新保存，请在系统相册中找到该照片。',
       showCancel: false
     })
   },
 
-  // 淇敼澶囨敞
+  // 修改备注
   onEditNote() {
     wx.showModal({
-      title: '淇敼澶囨敞',
+      title: '修改备注',
       editable: true,
-      placeholderText: '杈撳叆澶囨敞淇℃伅',
+      placeholderText: '输入备注信息',
       content: this.data.currentPhoto.note || '',
       success: (res) => {
         if (res.confirm) {
@@ -128,25 +134,26 @@ Page({
           )
           if (success) {
             this.refreshCurrentPhoto()
-            wx.showToast({ title: '宸蹭繚瀛?, icon: 'success' })
+            wx.showToast({ title: '已保存', icon: 'success' })
           }
         }
       }
     })
   },
 
-  // 鍒犻櫎鐓х墖
+  // 删除照片
   onDelete() {
     wx.showModal({
-      title: '纭鍒犻櫎',
-      content: '鍒犻櫎鍚庣缉鐣ュ浘灏嗕粠灏忕▼搴忎腑绉婚櫎锛岀郴缁熺浉鍐屼腑鐨勫師鍥鹃渶鎵嬪姩鍒犻櫎銆傜‘璁ゅ垹闄わ紵',
+      title: '确认删除',
+      content: '删除后缩略图将从小程序中移除，系统相册中的原图需手动删除。确认删除？',
       confirmColor: '#FF4D4F',
       success: (res) => {
         if (res.confirm) {
           const success = storage.deletePhoto(this.data.currentPhoto.id)
           if (success) {
-            wx.showToast({ title: '宸插垹闄?, icon: 'success' })
-            // 杩斿洖鐓х墖搴?            setTimeout(() => {
+            wx.showToast({ title: '已删除', icon: 'success' })
+            // 返回照片库
+            setTimeout(() => {
               wx.navigateBack()
             }, 500)
           }
