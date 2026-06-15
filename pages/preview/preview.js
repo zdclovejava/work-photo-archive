@@ -5,8 +5,9 @@ const locationUtil = require('../../utils/location')
 
 Page({
   data: {
-    tempPath: '',           // 鍘熷浘涓存椂璺緞
-    categoryId: 'all',      // 閫変腑鐨勫垎绫?    categoryName: '',
+    tempPath: '',           // 原图临时路径
+    categoryId: 'all',      // 选中的分类
+    categoryName: '',
     categoryColor: '#07C160',
     categories: [],
     watermark: {
@@ -14,8 +15,8 @@ Page({
       location: false,
       customText: '',
       showCategory: true,
-      timeText: '',         // 鏄剧ず鐢ㄧ殑鏃堕棿鏂囨湰
-      locationText: ''      // 鏄剧ず鐢ㄧ殑鍦扮偣鏂囨湰
+      timeText: '',         // 显示用的时间文本
+      locationText: ''      // 显示用的地点文本
     },
     note: '',
     showWatermarkOverlay: true,
@@ -33,7 +34,8 @@ Page({
     const categories = storage.getCategories()
     const cat = categories.find(c => c.id === categoryId)
 
-    // 鑾峰彇褰撳墠浣嶇疆锛堝鏋滃紑鍚簡鍦扮偣姘村嵃锛?    let locationText = ''
+    // 获取当前位置（如果开启了地点水印）
+    let locationText = ''
     if (watermark.location) {
       locationUtil.getLocation()
         .then(loc => {
@@ -43,7 +45,7 @@ Page({
         })
         .catch(() => {
           this.setData({
-            'watermark.locationText': '鏈紑鍚畾浣?
+            'watermark.locationText': '未开启定位'
           })
         })
     }
@@ -57,7 +59,7 @@ Page({
       watermark: {
         ...watermark,
         timeText: watermark.time ? this.formatTime(new Date()) : '',
-        locationText: watermark.location ? '鑾峰彇涓?..' : ''
+        locationText: watermark.location ? '获取中...' : ''
       }
     })
   },
@@ -71,7 +73,7 @@ Page({
     return `${y}-${m}-${d} ${h}:${min}`
   },
 
-  // 鍒嗙被閫夋嫨
+  // 分类选择
   onCategorySelect(e) {
     const id = e.currentTarget.dataset.id
     const cat = this.data.categories.find(c => c.id === id)
@@ -83,14 +85,16 @@ Page({
     })
   },
 
-  // 鏃堕棿姘村嵃寮€鍏?  onTimeWatermarkChange(e) {
+  // 时间水印开关
+  onTimeWatermarkChange(e) {
     this.setData({
       'watermark.time': e.detail.value,
       'watermark.timeText': e.detail.value ? this.formatTime(new Date()) : ''
     })
   },
 
-  // 鍦扮偣姘村嵃寮€鍏?  onLocationWatermarkChange(e) {
+  // 地点水印开关
+  onLocationWatermarkChange(e) {
     const enabled = e.detail.value
     if (enabled) {
       locationUtil.getLocation()
@@ -103,7 +107,7 @@ Page({
         .catch(() => {
           this.setData({
             'watermark.location': true,
-            'watermark.locationText': '鏈紑鍚畾浣?
+            'watermark.locationText': '未开启定位'
           })
         })
     } else {
@@ -114,21 +118,23 @@ Page({
     }
   },
 
-  // 鑷畾涔夋枃瀛楄緭鍏?  onCustomTextInput(e) {
+  // 自定义文字输入
+  onCustomTextInput(e) {
     this.setData({
       'watermark.customText': e.detail.value
     })
   },
 
-  // 澶囨敞杈撳叆
+  // 备注输入
   onNoteInput(e) {
     this.setData({ note: e.detail.value })
   },
 
-  // 淇濆瓨鍒扮浉鍐?  async onSave() {
+  // 保存到相册
+  async onSave() {
     if (this.data.isSaving) return
     this.setData({ isSaving: true })
-    wx.showLoading({ title: '淇濆瓨涓?..' })
+    wx.showLoading({ title: '保存中...' })
 
     try {
       const photo = await photoManager.savePhoto(this.data.tempPath, {
@@ -143,24 +149,24 @@ Page({
       })
 
       wx.hideLoading()
-      // 杩斿洖鐓х墖搴撻〉
+      // 返回照片库页
       wx.switchTab({
         url: '/pages/album/album'
       })
     } catch (err) {
       wx.hideLoading()
-      console.error('淇濆瓨澶辫触', err)
-      wx.showToast({ title: '淇濆瓨澶辫触', icon: 'none' })
+      console.error('保存失败', err)
+      wx.showToast({ title: '保存失败', icon: 'none' })
       this.setData({ isSaving: false })
     }
   },
 
-  // 閲嶆媿
+  // 重拍
   onRetake() {
     wx.navigateBack()
   },
 
-  // 鐐瑰嚮鍥剧墖棰勮澶у浘
+  // 点击图片预览大图
   onImagePreview() {
     wx.previewImage({
       urls: [this.data.tempPath],
