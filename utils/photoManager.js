@@ -1,15 +1,15 @@
 /**
- * 鐓х墖绠＄悊宸ュ叿
- * 澶勭悊鎷嶇収銆佷繚瀛樺埌鐩稿唽銆佺缉鐣ュ浘鐢熸垚
+ * 照片管理工具
+ * 处理拍照、保存到相册、缩略图生成
  */
 
 const storage = require('./storage')
 const idGenerator = require('./idGenerator')
 
 /**
- * 鎷嶇収鎴栭€夋嫨鐩稿唽鍥剧墖
+ * 拍照或选择相册图片
  * @param {'camera' | 'album'} sourceType
- * @returns {Promise<string>} 涓存椂鏂囦欢璺緞
+ * @returns {Promise<string>} 临时文件路径
  */
 function chooseImage(sourceType = 'camera') {
   return new Promise((resolve, reject) => {
@@ -22,7 +22,7 @@ function chooseImage(sourceType = 'camera') {
         if (res.tempFiles && res.tempFiles.length > 0) {
           resolve(res.tempFiles[0].tempFilePath)
         } else {
-          reject(new Error('鏈€夋嫨鍥剧墖'))
+          reject(new Error('未选择图片'))
         }
       },
       fail(err) {
@@ -33,8 +33,9 @@ function chooseImage(sourceType = 'camera') {
 }
 
 /**
- * 妫€鏌ュ苟璇锋眰淇濆瓨鍒扮浉鍐岀殑鏉冮檺
- * @returns {Promise<boolean>} 鏄惁鏈夋潈闄? */
+ * 检查并请求保存到相册的权限
+ * @returns {Promise<boolean>} 是否有权限
+ */
 function requestAlbumAuth() {
   return new Promise((resolve) => {
     wx.getSetting({
@@ -43,10 +44,11 @@ function requestAlbumAuth() {
         if (auth === true) {
           resolve(true)
         } else if (auth === false) {
-          // 鐢ㄦ埛涔嬪墠鎷掔粷杩囷紝寮曞鍘昏缃〉寮€鍚?          wx.showModal({
-            title: '闇€瑕佺浉鍐屾潈闄?,
-            content: '璇峰湪璁剧疆涓紑鍚?淇濆瓨鍒扮浉鍐?鏉冮檺锛屾墠鑳戒繚瀛樼収鐗?,
-            confirmText: '鍘昏缃?,
+          // 用户之前拒绝过，引导去设置页开启
+          wx.showModal({
+            title: '需要相册权限',
+            content: '请在设置中开启"保存到相册"权限，才能保存照片',
+            confirmText: '去设置',
             success(modalRes) {
               if (modalRes.confirm) {
                 wx.openSetting({
@@ -63,7 +65,7 @@ function requestAlbumAuth() {
             }
           })
         } else {
-          // 棣栨璇锋眰
+          // 首次请求
           wx.authorize({
             scope: 'scope.writePhotosAlbum',
               success() {
@@ -83,13 +85,15 @@ function requestAlbumAuth() {
 }
 
 /**
- * 淇濆瓨甯︽按鍗扮殑鐓х墖鍒扮郴缁熺浉鍐? * @param {string} watermarkedTempPath - 甯︽按鍗板浘鐗囩殑涓存椂璺緞
- * @returns {Promise<boolean>} 鏄惁淇濆瓨鎴愬姛
+ * 保存带水印的照片到系统相册
+ * @param {string} watermarkedTempPath - 带水印图片的临时路径
+ * @returns {Promise<boolean>} 是否保存成功
  */
 async function saveToAlbum(watermarkedTempPath) {
-  // 鍏堣姹傛潈闄?  const hasAuth = await requestAlbumAuth()
+  // 先请求权限
+  const hasAuth = await requestAlbumAuth()
   if (!hasAuth) {
-    wx.showToast({ title: '闇€瑕佺浉鍐屾潈闄愭墠鑳戒繚瀛?, icon: 'none' })
+    wx.showToast({ title: '需要相册权限才能保存', icon: 'none' })
     return false
   }
 
@@ -100,7 +104,7 @@ async function saveToAlbum(watermarkedTempPath) {
         resolve(true)
       },
       fail(err) {
-        console.error('淇濆瓨鍒扮浉鍐屽け璐?, err)
+        console.error('保存到相册失败', err)
         resolve(false)
       }
     })
@@ -108,33 +112,38 @@ async function saveToAlbum(watermarkedTempPath) {
 }
 
 /**
- * 瀹屾暣淇濆瓨娴佺▼锛? * 1. 鑾峰彇涓存椂鍥剧墖璺緞
- * 2. 鍚堟垚姘村嵃
- * 3. 淇濆瓨鍒扮郴缁熺浉鍐? * 4. 鐢熸垚缂╃暐鍥? * 5. 淇濆瓨鍏冩暟鎹? * @param {string} tempPath - 鍘熷浘涓存椂璺緞
- * @param {object} photoData - 鐓х墖鏁版嵁
- * @returns {Promise<object>} 淇濆瓨缁撴灉
+ * 完整保存流程：
+ * 1. 获取临时图片路径
+ * 2. 合成水印
+ * 3. 保存到系统相册
+ * 4. 生成缩略图
+ * 5. 保存元数据
+ * @param {string} tempPath - 原图临时路径
+ * @param {object} photoData - 照片数据
+ * @returns {Promise<object>} 保存结果
  */
 async function savePhoto(tempPath, photoData) {
   const { categoryId, watermark, note = '' } = photoData
   const photoId = idGenerator.generateId()
 
-  // 鑾峰彇鍒嗙被鍚嶇О
+  // 获取分类名称
   const categories = storage.getCategories()
   const category = categories.find(c => c.id === categoryId)
   const categoryName = category ? category.name : ''
 
-  // 鑾峰彇浣嶇疆淇℃伅锛堝鏋滃紑鍚簡鍦扮偣姘村嵃锛?  let locationText = null
+  // 获取位置信息（如果开启了地点水印）
+  let locationText = null
   if (watermark.location) {
     try {
       const location = require('./location')
       const loc = await location.getLocation()
       locationText = loc.address
     } catch (e) {
-      locationText = '鏈紑鍚畾浣?
+      locationText = '未开启定位'
     }
   }
 
-  // 鍚堟垚姘村嵃
+  // 合成水印
   const watermarkedPath = await require('./watermark').applyWatermark(tempPath, {
     timeWatermark: watermark.time !== false,
     locationText,
@@ -144,15 +153,18 @@ async function savePhoto(tempPath, photoData) {
     opacity: getApp().globalData.settings.watermarkOpacity || 70
   })
 
-  // 淇濆瓨鍒扮郴缁熺浉鍐?  const savedToAlbum = await saveToAlbum(watermarkedPath)
+  // 保存到系统相册
+  const savedToAlbum = await saveToAlbum(watermarkedPath)
 
   if (!savedToAlbum) {
-    console.warn('淇濆瓨鍒扮郴缁熺浉鍐屽け璐ワ紝浣嗗厓鏁版嵁浠嶄細淇濆瓨')
+    console.warn('保存到系统相册失败，但元数据仍会保存')
   }
 
-  // 鐢熸垚缂╃暐鍥?  const thumbnailPath = await storage.saveThumbnail(watermarkedPath, photoId)
+  // 生成缩略图
+  const thumbnailPath = await storage.saveThumbnail(watermarkedPath, photoId)
 
-  // 淇濆瓨鍏冩暟鎹?  const photo = {
+  // 保存元数据
+  const photo = {
     id: photoId,
     thumbnailPath,
     categoryId,
@@ -170,7 +182,7 @@ async function savePhoto(tempPath, photoData) {
   storage.addPhoto(photo)
 
   wx.showToast({
-    title: savedToAlbum ? '宸蹭繚瀛樺埌鐩稿唽' : '宸蹭繚瀛橈紙鐩稿唽鏉冮檺鏈紑鍚級',
+    title: savedToAlbum ? '已保存到相册' : '已保存（相册权限未开启）',
     icon: savedToAlbum ? 'success' : 'none',
     duration: 1500
   })
