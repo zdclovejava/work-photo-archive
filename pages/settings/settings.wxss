@@ -8,14 +8,14 @@ page {
   background: #EDEDED;
 }
 
-/* 鍒嗙粍鏍囬 */
+/* 分组标题 */
 .section-title {
   font-size: 26rpx;
   color: #999;
   padding: 24rpx 40rpx 12rpx;
 }
 
-/* 鍗＄墖 */
+/* 卡片 */
 .card {
   background: #fff;
   border-radius: 24rpx;
@@ -24,7 +24,7 @@ page {
   overflow: hidden;
 }
 
-/* 鍗曞厓鏍?*/
+/* 单元格 */
 .cell {
   display: flex;
   align-items: center;
@@ -65,7 +65,7 @@ page {
   margin: 0 0 0 32rpx;
 }
 
-/* 鍒嗙被鏍囩 */
+/* 分类标签 */
 .category-tags {
   display: flex;
   flex-wrap: wrap;
@@ -89,7 +89,7 @@ page {
   margin-left: 4rpx;
 }
 
-/* 杩涘害鏉?*/
+/* 进度条 */
 .progress-bar {
   height: 8rpx;
   background: #E8E8E8;
